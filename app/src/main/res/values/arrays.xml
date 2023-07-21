@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="eggSize">
+        <item>S</item>
+        <item>M</item>
+        <item>L</item>
+        <item>XL</item>
+    </string-array>
+
+    <string-array name="stakeSize">
+        <item>1cm</item>
+        <item>2cm</item>
+        <item>3.5cm</item>
+        <item>5cm</item>
+    </string-array>
+
+    <integer-array name="softBoiledEggTime">
+        <item>190</item>
+        <item>220</item>
+        <item>250</item>
+        <item>270</item>
+    </integer-array>
+
+    <integer-array name="softBoiledColdEggTime">
+        <item>240</item>
+        <item>280</item>
+        <item>320</item>
+        <item>340</item>
+    </integer-array>
+
+    <integer-array name="middleBoiledEggTime">
+        <item>250</item>
+        <item>280</item>
+        <item>310</item>
+        <item>340</item>
+    </integer-array>
+
+    <integer-array name="middleBoiledColdEggTime">
+        <item>300</item>
+        <item>340</item>
+        <item>380</item>
+        <item>410</item>
+    </integer-array>
+
+    <integer-array name="hardBoiledEggTime">
+        <item>480</item>
+        <item>520</item>
+        <item>570</item>
+        <item>620</item>
+    </integer-array>
+
+    <integer-array name="hardBoiledColdEggTime">
+        <item>530</item>
+        <item>580</item>
+        <item>640</item>
+        <item>690</item>
+    </integer-array>
+
+    <integer-array name="blueRareStakeTime">
+        <item>80</item>
+        <item>120</item>
+        <item>240</item>
+        <item>360</item>
+    </integer-array>
+
+    <integer-array name="blueRareColdStakeTime">
+        <item>110</item>
+        <item>150</item>
+        <item>270</item>
+        <item>390</item>
+    </integer-array>
+
+    <integer-array name="rareStakeTime">
+        <item>140</item>
+        <item>240</item>
+        <item>360</item>
+        <item>480</item>
+    </integer-array>
+
+    <integer-array name="rareColdStakeTime">
+        <item>170</item>
+        <item>270</item>
+        <item>390</item>
+        <item>510</item>
+    </integer-array>
+
+    <integer-array name="mediumRareStakeTime">
+        <item>180</item>
+        <item>300</item>
+        <item>450</item>
+        <item>600</item>
+    </integer-array>
+
+    <integer-array name="mediumRareColdStakeTime">
+        <item>210</item>
+        <item>330</item>
+        <item>480</item>
+        <item>630</item>
+    </integer-array>
+
+    <integer-array name="mediumStakeTime">
+        <item>210</item>
+        <item>360</item>
+        <item>450</item>
+        <item>720</item>
+    </integer-array>
+
+    <integer-array name="mediumColdStakeTime">
+        <item>240</item>
+        <item>390</item>
+        <item>570</item>
+        <item>750</item>
+    </integer-array>
+
+    <integer-array name="mediumWeldonStakeTime">
+        <item>270</item>
+        <item>450</item>
+        <item>630</item>
+        <item>810</item>
+    </integer-array>
+
+    <integer-array name="mediumWeldonColdStakeTime">
+        <item>300</item>
+        <item>480</item>
+        <item>660</item>
+        <item>840</item>
+    </integer-array>
+
+    <integer-array name="weldonStakeTime">
+        <item>420</item>
+        <item>600</item>
+        <item>750</item>
+        <item>930</item>
+    </integer-array>
+
+    <integer-array name="weldonColdStakeTime">
+        <item>450</item>
+        <item>630</item>
+        <item>780</item>
+        <item>960</item>
+    </integer-array>
+
+    <integer-array name="teaTime">
+        <item>240</item>
+        <item>150</item>
+        <item>300</item>
+        <item>300</item>
+    </integer-array>
+</resources>
