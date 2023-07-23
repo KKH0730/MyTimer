@@ -1,6 +1,8 @@
 package com.life.myTimer.ui.main;
 
 
+import android.util.Log;
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
@@ -10,9 +12,15 @@ import com.life.myTimer.R;
 import com.life.myTimer.ui.main.model.Egg;
 import com.life.myTimer.ui.main.model.Subject;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import kotlinx.coroutines.flow.StateFlow;
+import timber.log.Timber;
 
 public class MainViewModel extends ViewModel {
 
@@ -55,11 +63,11 @@ public class MainViewModel extends ViewModel {
     private MutableLiveData<Boolean> _isColdFood = new MutableLiveData<>(true);
     public LiveData<Boolean> isColdFood = _isColdFood;
 
-    private MutableLiveData<Integer> _selectedEggSizeIndex = new MutableLiveData<>(0);
-    public LiveData<Integer> selectedEggSizeIndex = _selectedEggSizeIndex;
+    private MutableLiveData<List<String>> _foodSizeList = new MutableLiveData<>(Arrays.asList(eggSizes));
+    public LiveData<List<String>> foodSizeList = _foodSizeList;
 
-    private MutableLiveData<Integer> _selectedStakeSizeIndex = new MutableLiveData<>(0);
-    public LiveData<Integer> selectedStakeSizeIndex = _selectedStakeSizeIndex;
+    private MutableLiveData<Integer> _selectedFoodSizeIndex = new MutableLiveData<>(0);
+    public LiveData<Integer> selectedFoodSizeIndex = _selectedFoodSizeIndex;
 
     private MutableLiveData<Subject.EggCookDegree> _selectedEggCookDegree = new MutableLiveData(Subject.EggCookDegree.SOFT_BOILED);
     public LiveData<Subject.EggCookDegree> selectedEggCookDegree = _selectedEggCookDegree;
@@ -73,12 +81,16 @@ public class MainViewModel extends ViewModel {
     private MutableLiveData<Integer> _time = new MutableLiveData<>();
     public LiveData<Integer> time = _time;
 
+    private Timer timer = new Timer();
 
+
+    public MainViewModel() {
+        setupTimer();
+    }
 
     public void initializeData() {
         _isColdFood.setValue(true);
-        _selectedEggSizeIndex.setValue(0);
-        _selectedStakeSizeIndex.setValue(0);
+        _selectedFoodSizeIndex.setValue(0);
 
         _selectedEggCookDegree.setValue(Subject.EggCookDegree.SOFT_BOILED);
         _selectedStakeCookDegree.setValue(Subject.StakeCookDegree.BLUE_RARE);
@@ -88,17 +100,24 @@ public class MainViewModel extends ViewModel {
     public void updateSelectedSubject(Subject subject) {
         initializeData();
 
+        if (subject.getName().equals(Subject.EGG.getName())) {
+            updateFoodSizes(Arrays.asList(eggSizes));
+        } else if (subject.getName().equals(Subject.STAKE.getName())) {
+            updateFoodSizes(Arrays.asList(stakeSizes));
+        } else if (subject.getName().equals(Subject.TEA.getName())) {
+            updateFoodSizes(new ArrayList<>());
+        }
         _selectedSubject.setValue(subject);
         setupTimer();
     }
 
-    public void updateSelectedEggSizePosition(int index) {
-        _selectedEggSizeIndex.setValue(index);
-        setupTimer();
+    public void updateFoodSizes(List<String> foodSizes) {
+        _foodSizeList.setValue(foodSizes);
     }
 
-    public void updateSelectedStakeSizePosition(int index) {
-        _selectedStakeSizeIndex.setValue(index);
+
+    public void updateSelectedFoodSizePosition(int index) {
+        _selectedFoodSizeIndex.setValue(index);
         setupTimer();
     }
 
@@ -123,6 +142,8 @@ public class MainViewModel extends ViewModel {
     }
 
     public void setupTimer() {
+        timer.cancel();
+
         Subject subject = _selectedSubject.getValue();
         if (subject != null) {
             if (subject.getName().equals(Subject.EGG.getName())) {
@@ -137,7 +158,7 @@ public class MainViewModel extends ViewModel {
 
     private int getEggTime() {
         Subject.EggCookDegree eggCookDegree = _selectedEggCookDegree.getValue();
-        int currentEggSizeIndex = _selectedEggSizeIndex.getValue();
+        int currentEggSizeIndex = _selectedFoodSizeIndex.getValue();
         boolean isCold = _isColdFood.getValue();
 
         int time;
@@ -165,7 +186,7 @@ public class MainViewModel extends ViewModel {
 
     private int getStakeTime() {
         Subject.StakeCookDegree stakeCookDegree = _selectedStakeCookDegree.getValue();
-        int currentEggSizeIndex = _selectedStakeSizeIndex.getValue();
+        int currentEggSizeIndex = _selectedFoodSizeIndex.getValue();
         boolean isCold = _isColdFood.getValue();
 
 
@@ -213,5 +234,31 @@ public class MainViewModel extends ViewModel {
     private int getTeaTime() {
         int selectedTeaIndex = _selectedTeaIndex.getValue();
         return teaTimes[selectedTeaIndex];
+    }
+
+    public void startTimer() {
+        timer.cancel();
+        timer = new Timer();
+        TimerTask timerTask = new TimerTask() {
+            @Override
+            public void run() {
+                try {
+                    int time  = _time.getValue();
+                    if (time - 1 >= 0) {
+                        _time.postValue(time - 1);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+
+        timer.schedule(timerTask, 0, 1000);
+    }
+
+    @Override
+    protected void onCleared() {
+        timer.cancel();
+        super.onCleared();
     }
 }

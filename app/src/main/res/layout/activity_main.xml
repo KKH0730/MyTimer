@@ -3,7 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
-        <import type="com.life.myTimer.ui.main.model.Subject"/>
+
+        <import type="com.life.myTimer.ui.main.model.Subject" />
 
         <variable
             name="activity"
@@ -24,11 +25,11 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
             app:cardCornerRadius="10dp"
-            app:strokeWidth="1dp"
-            app:strokeColor="@color/black"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent">
+            app:layout_constraintTop_toTopOf="parent"
+            app:strokeColor="@color/black"
+            app:strokeWidth="1dp">
 
             <androidx.appcompat.widget.LinearLayoutCompat
                 android:layout_width="match_parent"
@@ -36,38 +37,44 @@
                 android:orientation="horizontal">
 
                 <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tvSubjectEgg"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="달걀"
                     android:onClick="@{() -> viewModel.updateSelectedSubject(Subject.EGG)}"
+                    android:paddingHorizontal="10dp"
                     android:paddingVertical="5dp"
-                    android:paddingHorizontal="10dp"/>
+                    android:text="달걀"
+                    android:textSize="16dp" />
 
                 <View
                     android:layout_width="1dp"
                     android:layout_height="match_parent"
-                    android:background="@color/black"/>
+                    android:background="@color/black" />
 
                 <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tvSubjectStake"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="스테이크"
                     android:onClick="@{() -> viewModel.updateSelectedSubject(Subject.STAKE)}"
+                    android:paddingHorizontal="10dp"
                     android:paddingVertical="5dp"
-                    android:paddingHorizontal="10dp"/>
+                    android:text="스테이크"
+                    android:textSize="16dp" />
 
                 <View
                     android:layout_width="1dp"
                     android:layout_height="match_parent"
-                    android:background="@color/black"/>
+                    android:background="@color/black" />
 
                 <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tvSubjectTea"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="차"
                     android:onClick="@{() -> viewModel.updateSelectedSubject(Subject.TEA)}"
+                    android:paddingHorizontal="10dp"
                     android:paddingVertical="5dp"
-                    android:paddingHorizontal="10dp"/>
+                    android:text="차"
+                    android:textSize="16dp" />
 
             </androidx.appcompat.widget.LinearLayoutCompat>
         </com.google.android.material.card.MaterialCardView>
@@ -76,84 +83,129 @@
             android:id="@+id/tvRemainTime"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="40dp"
             android:textColor="@color/black"
+            android:textSize="40dp"
             android:textStyle="bold"
-            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            tools:text="04:00"/>
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="04:00" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tvStart"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:background="#DDA1A1"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="10dp"
+            android:text="start"
+            android:textColor="@color/black"
+            android:onClick="@{() -> viewModel.startTimer()}"
+            android:textSize="24dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvRemainTime" />
 
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/ivSetting"
             android:layout_width="24dp"
             android:layout_height="24dp"
-            android:src="@drawable/ic_launcher_foreground"
             android:layout_marginEnd="24dp"
-            app:layout_constraintHorizontal_bias="1"
-            app:layout_constraintTop_toTopOf="@+id/mcvCategory"
+            android:src="@drawable/ic_launcher_foreground"
             app:layout_constraintBottom_toBottomOf="@+id/mcvCategory"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="1"
             app:layout_constraintStart_toEndOf="@+id/mcvCategory"
-            app:layout_constraintEnd_toEndOf="parent"/>
+            app:layout_constraintTop_toTopOf="@+id/mcvCategory" />
 
         <androidx.viewpager2.widget.ViewPager2
             android:id="@+id/vpType"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
-            app:layout_constraintTop_toBottomOf="@+id/mcvCategory"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"/>
+            app:layout_constraintTop_toBottomOf="@+id/mcvCategory" />
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/ivArrow"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginBottom="24dp"
+            android:onClick="@{() -> activity.onClickShowBottomSheet()}"
+            android:src="@drawable/ic_launcher_background"
+            app:layout_constraintBottom_toTopOf="@+id/flAnimatedContainer"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <FrameLayout
+            android:id="@+id/flAnimatedContainer"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:visibility="invisible"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="@+id/clBottomSheet"
+            app:layout_constraintStart_toStartOf="@+id/clBottomSheet" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/clBottomSheet"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:paddingBottom="46dp"
             android:background="@drawable/bottom_sheet_background_f4f4f4"
-            android:paddingHorizontal="24dp"
             android:visibility="invisible"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent">
+            app:layout_constraintStart_toStartOf="parent"
+            tools:visibility="visible">
 
             <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/tvTitle"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:textSize="20dp"
-                android:text="sdgnefdglkdfnglkfdngkl"
-                android:includeFontPadding="false"
-                android:layout_marginTop="30dp"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintStart_toStartOf="parent"/>
-
-            <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/tvChangePasswordGuide"
+                android:id="@+id/tvCold"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="13dp"
-                android:text="eroign4lkngl4krtmgklrtemgrkl"
-                android:layout_marginTop="6dp"
-                app:layout_constraintTop_toBottomOf="@+id/tvTitle"
-                app:layout_constraintStart_toStartOf="parent"/>
+                android:layout_marginTop="30dp"
+                android:layout_marginEnd="24dp"
+                android:background="@color/color_ED8282"
+                android:onClick="@{() -> viewModel.updateColdFood(true)}"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="10dp"
+                android:text="냉장 유"
+                android:textColor="@color/white"
+                android:textSize="20dp"
+                app:layout_constraintEnd_toStartOf="@+id/tvNotCold"
+                app:layout_constraintHorizontal_chainStyle="packed"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
             <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/btnSignIn"
-                android:layout_width="0dp"
-                android:layout_height="56dp"
-                android:background="@color/black"
-                android:text="dsfdfgdfhdfhdfhgdf"
-                android:textSize="14dp"
-                android:includeFontPadding="false"
-                android:layout_marginTop="65dp"
-                android:layout_marginBottom="24dp"
-                android:layout_marginEnd="4dp"
-                android:gravity="center"
-                app:layout_constraintTop_toBottomOf="@+id/tvChangePasswordGuide"
-                app:layout_constraintBottom_toBottomOf="parent"
+                android:id="@+id/tvNotCold"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="30dp"
+                android:onClick="@{() -> viewModel.updateColdFood(false)}"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="10dp"
+                android:text="냉장 무"
+                android:textSize="20dp"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"/>
+                app:layout_constraintStart_toEndOf="@+id/tvCold"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvFoodSize"
+                android:layout_width="wrap_content"
+                android:layout_height="50dp"
+                android:layout_marginTop="24dp"
+                android:clipToPadding="false"
+                android:orientation="horizontal"
+                android:paddingHorizontal="24dp"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tvCold" />
         </androidx.constraintlayout.widget.ConstraintLayout>
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
