@@ -7,16 +7,21 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 
+import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
+import androidx.databinding.Observable;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.life.myTimer.R;
 import com.life.myTimer.databinding.ActivityMainBinding;
+import com.life.myTimer.recyclerView.SnappyRecyclerView;
+import com.life.myTimer.recyclerView.adapters.ItemAdapter;
+import com.life.myTimer.recyclerView.model.ImageItemModel;
 import com.life.myTimer.ui.main.adapter.FoodSizeAdapter;
 import com.life.myTimer.ui.main.model.Subject;
 
@@ -47,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
         startObserve();
         setBottomSheetHeight();
         setFoodSizeRecyclerView();
+        initArrayLists();
     }
 
     @SuppressLint("DefaultLocale")
@@ -141,8 +147,22 @@ public class MainActivity extends AppCompatActivity {
         binding.rvFoodSize.setItemAnimator(null);
     }
 
-    private void setKindOfFoodHorizontal() {
+    private void initArrayLists() {
+        ArrayList<Observable> itemModelsMiddle = fillImageArr(R.drawable.circle_image, 7);
+        SnappyRecyclerView recyclerViewMiddle = findViewById(R.id.rv_middle);
+        ItemAdapter itemAdapterMiddle = new ItemAdapter(ItemAdapter.ItemType.Image, itemModelsMiddle, recyclerViewMiddle.getViewWidth());
+        recyclerViewMiddle.setAdapter(itemAdapterMiddle);
 
+    }
+
+    private ArrayList<Observable> fillImageArr(@DrawableRes int imageRes, int length) {
+        ArrayList<Observable> imageItemModels = new ArrayList<>();
+
+        for(int i = 0; i < length; i++) {
+            imageItemModels.add(new ImageItemModel(imageRes));
+        }
+
+        return imageItemModels;
     }
 
     private void animateBottomSheetHeight(boolean isShow, int beforeHeight, int afterHeight) {

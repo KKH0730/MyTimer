@@ -80,6 +80,17 @@
             </androidx.appcompat.widget.LinearLayoutCompat>
         </com.google.android.material.card.MaterialCardView>
 
+        <com.life.myTimer.recyclerView.SnappyRecyclerView
+            android:id="@+id/rv_middle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingTop="30dp"
+            android:paddingBottom="30dp"
+            android:layout_marginTop="24dp"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            app:layout_constraintTop_toBottomOf="@+id/mcvCategory" />
+
          <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/tvRemainTime"
             android:layout_width="wrap_content"
