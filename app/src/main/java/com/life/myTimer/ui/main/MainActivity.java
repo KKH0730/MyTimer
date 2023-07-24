@@ -5,6 +5,7 @@ import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 
 import androidx.annotation.DrawableRes;
@@ -15,7 +16,9 @@ import androidx.databinding.DataBindingUtil;
 import androidx.databinding.Observable;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.DiffUtil;
+import androidx.recyclerview.widget.LinearSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.SnapHelper;
 
 import com.life.myTimer.R;
 import com.life.myTimer.databinding.ActivityMainBinding;
@@ -26,6 +29,8 @@ import com.life.myTimer.ui.main.adapter.FoodSizeAdapter;
 import com.life.myTimer.ui.main.model.Subject;
 
 import java.util.ArrayList;
+
+import timber.log.Timber;
 
 public class MainActivity extends AppCompatActivity {
     private ActivityMainBinding binding;
@@ -52,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
         startObserve();
         setBottomSheetHeight();
         setFoodSizeRecyclerView();
-        initArrayLists();
+        setKindOfFoodRecyclerView();
     }
 
     @SuppressLint("DefaultLocale")
@@ -147,11 +152,31 @@ public class MainActivity extends AppCompatActivity {
         binding.rvFoodSize.setItemAnimator(null);
     }
 
-    private void initArrayLists() {
+    private void setKindOfFoodRecyclerView() {
         ArrayList<Observable> itemModelsMiddle = fillImageArr(R.drawable.circle_image, 7);
-        SnappyRecyclerView recyclerViewMiddle = findViewById(R.id.rv_middle);
-        ItemAdapter itemAdapterMiddle = new ItemAdapter(ItemAdapter.ItemType.Image, itemModelsMiddle, recyclerViewMiddle.getViewWidth());
-        recyclerViewMiddle.setAdapter(itemAdapterMiddle);
+        ItemAdapter itemAdapterMiddle = new ItemAdapter(ItemAdapter.ItemType.Image, itemModelsMiddle, binding.rvKindOfFood.getViewWidth(), this);
+        binding.rvKindOfFood.setAdapter(itemAdapterMiddle);
+
+        SnapHelper snapHelper = new LinearSnapHelper();
+        snapHelper.attachToRecyclerView(binding.rvKindOfFood);
+        binding.rvKindOfFood.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                if (recyclerView.getLayoutManager() != null) {
+                    View view = snapHelper.findSnapView(recyclerView.getLayoutManager());
+                    if (view != null) {
+                        int position = recyclerView.getLayoutManager().getPosition(view);
+                        int currentPosition = RecyclerView.NO_POSITION;
+
+                        if (currentPosition != position) {
+                            currentPosition = position;
+                            Log.e("kkhdev", "pos : " + currentPosition);
+                        }
+                    }
+                }
+            }
+        });
 
     }
 

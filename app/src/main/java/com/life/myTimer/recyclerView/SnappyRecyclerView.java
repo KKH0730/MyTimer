@@ -31,8 +31,6 @@ public class SnappyRecyclerView extends RecyclerView {
     }
 
     private void initDefault() {
-        SnapHelper snapHelper = new LinearSnapHelper();
-        snapHelper.attachToRecyclerView(this);
         addFadeOut();
     }
 
@@ -53,20 +51,12 @@ public class SnappyRecyclerView extends RecyclerView {
 
                 for(int i = firstView; i <= lastView; i++) {
                     View currentView = llm.findViewByPosition(i);
-                    Log.d(TAG, "Finding View #" + i);
-                    Log.d(TAG, "X: " + currentView.getX());
-                    Log.d(TAG, "Center of item: " + currentView.getWidth()/2);
 
                     float xPosCenter = currentView.getX() + currentView.getWidth()/2.0f;
                     float centerScreen = viewWidth/2.0f;
 
                     float distanceFromCenter = Math.abs(centerScreen - xPosCenter);
-                    Log.d(TAG, "Distance from center of view: " +
-                            distanceFromCenter);
-
                     float percentFromCenter = distanceFromCenter/centerScreen;
-                    Log.d(TAG, "Distance from center of view (%): " +
-                            percentFromCenter);
 
 
 //                    setAlpha(percentFromCenter, currentView);
@@ -103,8 +93,6 @@ public class SnappyRecyclerView extends RecyclerView {
      */
     private void setAlpha(float percentFromCenter, View currentView){
         float alpha = 0.2f + (0.8f * (1.0f - percentFromCenter));
-        Log.d(TAG, "alpha: " +
-                alpha);
         currentView.setAlpha(alpha);
     }
 }

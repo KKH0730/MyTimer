@@ -1,5 +1,7 @@
 package com.life.myTimer.recyclerView.adapters;
 
+import android.content.Context;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
@@ -31,10 +33,13 @@ public class ItemAdapter extends RecyclerView.Adapter<DefaultBindingViewHolder> 
     private List<Observable> mItemList;
     private int mScreenWidth;
 
-    public ItemAdapter(ItemType itemType, List<Observable> itemList, int screenWidth) {
+    private Context context;
+
+    public ItemAdapter(ItemType itemType, List<Observable> itemList, int screenWidth, Context context) {
         this.mItemType = itemType;
         this.mItemList = itemList;
         this.mScreenWidth = screenWidth;
+        this.context = context;
     }
 
     @Override
@@ -65,11 +70,17 @@ public class ItemAdapter extends RecyclerView.Adapter<DefaultBindingViewHolder> 
 
         if (position == 0) {
             leftMargin = endItemMarginSize;
+            rightMargin /= 2;
         } else if (position == mItemList.size() - 1) {
+            leftMargin /= 2;
             rightMargin = endItemMarginSize;
+        } else {
+            leftMargin /= 2;
+            rightMargin /= 2;
         }
 
-        lp.setMargins(leftMargin, marginSize, rightMargin, marginSize); // left, top, right, bottom
+
+        lp.setMargins(leftMargin, 0, rightMargin, 0); // left, top, right, bottom
 
         holder.itemView.setLayoutParams(lp);
 
@@ -88,7 +99,7 @@ public class ItemAdapter extends RecyclerView.Adapter<DefaultBindingViewHolder> 
      * @return the margin size in px to be used for all the non-end items
      */
     private int calcItemMarginSize() {
-        return calcItemSize() / 4;
+        return mScreenWidth / 2 - (calcItemSize() * 3 / 2);
     }
 
     /**
@@ -97,11 +108,9 @@ public class ItemAdapter extends RecyclerView.Adapter<DefaultBindingViewHolder> 
      *
      * @return the size to be used for all the items
      */
-//    private int calcItemSize() {
-//        return mScreenWidth / 7;
-//    }
     private int calcItemSize() {
-        return mScreenWidth / 5;
+        return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 50, context.getResources().getDisplayMetrics());
+
     }
 
     /**
