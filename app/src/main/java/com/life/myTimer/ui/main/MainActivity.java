@@ -5,31 +5,22 @@ import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
-import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.DiffUtil;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.life.myTimer.App;
 import com.life.myTimer.R;
 import com.life.myTimer.databinding.ActivityMainBinding;
 import com.life.myTimer.ui.main.adapter.FoodSizeAdapter;
 import com.life.myTimer.ui.main.model.Subject;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-
-import timber.log.Timber;
 
 public class MainActivity extends AppCompatActivity {
     private ActivityMainBinding binding;
@@ -148,6 +139,10 @@ public class MainActivity extends AppCompatActivity {
                 )
         );
         binding.rvFoodSize.setItemAnimator(null);
+    }
+
+    private void setKindOfFoodHorizontal() {
+
     }
 
     private void animateBottomSheetHeight(boolean isShow, int beforeHeight, int afterHeight) {

@@ -9,18 +9,13 @@ import androidx.lifecycle.ViewModel;
 
 import com.life.myTimer.App;
 import com.life.myTimer.R;
-import com.life.myTimer.ui.main.model.Egg;
 import com.life.myTimer.ui.main.model.Subject;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
-
-import kotlinx.coroutines.flow.StateFlow;
-import timber.log.Timber;
 
 public class MainViewModel extends ViewModel {
 
@@ -69,14 +64,11 @@ public class MainViewModel extends ViewModel {
     private MutableLiveData<Integer> _selectedFoodSizeIndex = new MutableLiveData<>(0);
     public LiveData<Integer> selectedFoodSizeIndex = _selectedFoodSizeIndex;
 
-    private MutableLiveData<Subject.EggCookDegree> _selectedEggCookDegree = new MutableLiveData(Subject.EggCookDegree.SOFT_BOILED);
-    public LiveData<Subject.EggCookDegree> selectedEggCookDegree = _selectedEggCookDegree;
+    private MutableLiveData<List<Subject.KindOfFood>> _kindOfFoodList = new MutableLiveData<>();
+    public LiveData<List<Subject.KindOfFood>> kindOfFoodList = _kindOfFoodList;
 
-    private MutableLiveData<Subject.StakeCookDegree> _selectedStakeCookDegree = new MutableLiveData(Subject.StakeCookDegree.BLUE_RARE);
-    public LiveData<Subject.StakeCookDegree> selectedStakeCookDegree = _selectedStakeCookDegree;
-
-    private MutableLiveData<Integer> _selectedTeaIndex = new MutableLiveData(0);
-    public LiveData<Integer> selectedTeaIndex = _selectedTeaIndex;
+    private MutableLiveData<Integer> _selectedKindOfFoodIndex = new MutableLiveData<>(0);
+    public LiveData<Integer> selectedKindOfFoodIndex = _selectedKindOfFoodIndex;
 
     private MutableLiveData<Integer> _time = new MutableLiveData<>();
     public LiveData<Integer> time = _time;
@@ -85,36 +77,38 @@ public class MainViewModel extends ViewModel {
 
 
     public MainViewModel() {
+        updateKindOfFoodList(Subject.EGG);
         setupTimer();
     }
 
     public void initializeData() {
         _isColdFood.setValue(true);
         _selectedFoodSizeIndex.setValue(0);
-
-        _selectedEggCookDegree.setValue(Subject.EggCookDegree.SOFT_BOILED);
-        _selectedStakeCookDegree.setValue(Subject.StakeCookDegree.BLUE_RARE);
-        _selectedTeaIndex.setValue(0);
+        _selectedKindOfFoodIndex.setValue(0);
     }
 
     public void updateSelectedSubject(Subject subject) {
         initializeData();
 
-        if (subject.getName().equals(Subject.EGG.getName())) {
-            updateFoodSizes(Arrays.asList(eggSizes));
-        } else if (subject.getName().equals(Subject.STAKE.getName())) {
-            updateFoodSizes(Arrays.asList(stakeSizes));
-        } else if (subject.getName().equals(Subject.TEA.getName())) {
-            updateFoodSizes(new ArrayList<>());
-        }
+        updateFoodSizes(subject);
+        updateKindOfFoodList(subject);
+
         _selectedSubject.setValue(subject);
         setupTimer();
     }
 
-    public void updateFoodSizes(List<String> foodSizes) {
-        _foodSizeList.setValue(foodSizes);
-    }
+    public void updateFoodSizes(Subject subject) {
+        List<String> foodSizeList;
 
+        if (subject.getName().equals(Subject.EGG.getName())) {
+            foodSizeList = Arrays.asList(eggSizes);
+        } else if (subject.getName().equals(Subject.STAKE.getName())) {
+            foodSizeList = Arrays.asList(stakeSizes);
+        } else {
+            foodSizeList = new ArrayList<>();
+        }
+        _foodSizeList.setValue(foodSizeList);
+    }
 
     public void updateSelectedFoodSizePosition(int index) {
         _selectedFoodSizeIndex.setValue(index);
@@ -126,19 +120,32 @@ public class MainViewModel extends ViewModel {
         setupTimer();
     }
 
-    public void updateSelectedEggDegree(Subject.EggCookDegree eggCookDegree) {
-        _selectedEggCookDegree.setValue(eggCookDegree);
-        setupTimer();
+    public void updateKindOfFoodList(Subject subject) {
+        ArrayList<Subject.KindOfFood> kindOfFoodList = new ArrayList<>();
+
+        if (subject.getName().equals(Subject.EGG.getName())) {
+            kindOfFoodList.add(Subject.KindOfFood.SOFT_BOILED);
+            kindOfFoodList.add(Subject.KindOfFood.MIDDLE_BOILED);
+            kindOfFoodList.add(Subject.KindOfFood.HARD_BOILED);
+        } else if (subject.getName().equals(Subject.STAKE.getName())) {
+            kindOfFoodList.add(Subject.KindOfFood.BLUE_RARE);
+            kindOfFoodList.add(Subject.KindOfFood.RARE);
+            kindOfFoodList.add(Subject.KindOfFood.MEDIUM_RARE);
+            kindOfFoodList.add(Subject.KindOfFood.MEDIUM);
+            kindOfFoodList.add(Subject.KindOfFood.MEDIUM_WELDON);
+            kindOfFoodList.add(Subject.KindOfFood.WELDON);
+        } else {
+            kindOfFoodList.add(Subject.KindOfFood.BLACK_TEA);
+            kindOfFoodList.add(Subject.KindOfFood.GREEN_TEA);
+            kindOfFoodList.add(Subject.KindOfFood.HUB_TEA);
+            kindOfFoodList.add(Subject.KindOfFood.WHITE_TEA);
+        }
+
+        _kindOfFoodList.setValue(kindOfFoodList);
     }
 
-    public void updateSelectedStateDegree(Subject.StakeCookDegree stakeCookDegree) {
-        _selectedStakeCookDegree.setValue(stakeCookDegree);
-        setupTimer();
-    }
-
-    public void updateSelectedTeaPosition(int index) {
-        _selectedTeaIndex.setValue(index);
-        setupTimer();
+    public void updateSelectedKindOfFood(int index) {
+        _selectedKindOfFoodIndex.setValue(index);
     }
 
     public void setupTimer() {
@@ -157,18 +164,18 @@ public class MainViewModel extends ViewModel {
     }
 
     private int getEggTime() {
-        Subject.EggCookDegree eggCookDegree = _selectedEggCookDegree.getValue();
+        Subject.KindOfFood kindOfFood = _kindOfFoodList.getValue().get(_selectedKindOfFoodIndex.getValue());
         int currentEggSizeIndex = _selectedFoodSizeIndex.getValue();
         boolean isCold = _isColdFood.getValue();
 
         int time;
-        if (eggCookDegree == Subject.EggCookDegree.SOFT_BOILED) {
+        if (kindOfFood == Subject.KindOfFood.SOFT_BOILED) {
             if (isCold) {
                 time = softBoiledColdEggTimes[currentEggSizeIndex];
             } else {
                 time = softBoiledEggTimes[currentEggSizeIndex];
             }
-        } else if (eggCookDegree == Subject.EggCookDegree.MIDDLE_BOILED){
+        } else if (kindOfFood == Subject.KindOfFood.MIDDLE_BOILED){
             if (isCold) {
                 time = middleBoiledColdEggTimes[currentEggSizeIndex];
             } else {
@@ -185,54 +192,54 @@ public class MainViewModel extends ViewModel {
     }
 
     private int getStakeTime() {
-        Subject.StakeCookDegree stakeCookDegree = _selectedStakeCookDegree.getValue();
-        int currentEggSizeIndex = _selectedFoodSizeIndex.getValue();
+        Subject.KindOfFood kindOfFood = _kindOfFoodList.getValue().get(_selectedKindOfFoodIndex.getValue());
+        int currentStakeSizeIndex = _selectedFoodSizeIndex.getValue();
         boolean isCold = _isColdFood.getValue();
 
 
         int time;
-        if (stakeCookDegree == Subject.StakeCookDegree.BLUE_RARE) {
+        if (kindOfFood == Subject.KindOfFood.BLUE_RARE) {
             if (isCold) {
-                time = blueRareColdStakeTimes[currentEggSizeIndex];
+                time = blueRareColdStakeTimes[currentStakeSizeIndex];
             } else {
-                time = blueRareStakeTimes[currentEggSizeIndex];
+                time = blueRareStakeTimes[currentStakeSizeIndex];
             }
-        } else if (stakeCookDegree == Subject.StakeCookDegree.RARE){
+        } else if (kindOfFood == Subject.KindOfFood.RARE){
             if (isCold) {
-                time = rareColdStakeTimes[currentEggSizeIndex];
+                time = rareColdStakeTimes[currentStakeSizeIndex];
             } else {
-                time = rareStakeTimes[currentEggSizeIndex];
+                time = rareStakeTimes[currentStakeSizeIndex];
             }
-        } else if (stakeCookDegree == Subject.StakeCookDegree.MEDIUM_RARE){
+        } else if (kindOfFood == Subject.KindOfFood.MEDIUM_RARE){
             if (isCold) {
-                time = mediumRareColdStakeTimes[currentEggSizeIndex];
+                time = mediumRareColdStakeTimes[currentStakeSizeIndex];
             } else {
-                time = mediumRareStakeTimes[currentEggSizeIndex];
+                time = mediumRareStakeTimes[currentStakeSizeIndex];
             }
-        } else if (stakeCookDegree == Subject.StakeCookDegree.MEDIUM){
+        } else if (kindOfFood == Subject.KindOfFood.MEDIUM){
             if (isCold) {
-                time = mediumColdStakeTimes[currentEggSizeIndex];
+                time = mediumColdStakeTimes[currentStakeSizeIndex];
             } else {
-                time = mediumStakeTimes[currentEggSizeIndex];
+                time = mediumStakeTimes[currentStakeSizeIndex];
             }
-        } else if (stakeCookDegree == Subject.StakeCookDegree.MEDIUM_WELDON){
+        } else if (kindOfFood == Subject.KindOfFood.MEDIUM_WELDON){
             if (isCold) {
-                time = mediumWeldonColdStakeTimes[currentEggSizeIndex];
+                time = mediumWeldonColdStakeTimes[currentStakeSizeIndex];
             } else {
-                time = mediumWeldonStakeTimes[currentEggSizeIndex];
+                time = mediumWeldonStakeTimes[currentStakeSizeIndex];
             }
         } else {
             if (isCold) {
-                time = weldonColdStakeTimes[currentEggSizeIndex];
+                time = weldonColdStakeTimes[currentStakeSizeIndex];
             } else {
-                time = weldonStakeTimes[currentEggSizeIndex];
+                time = weldonStakeTimes[currentStakeSizeIndex];
             }
         }
         return time;
     }
 
     private int getTeaTime() {
-        int selectedTeaIndex = _selectedTeaIndex.getValue();
+        int selectedTeaIndex = _selectedKindOfFoodIndex.getValue();
         return teaTimes[selectedTeaIndex];
     }
 
