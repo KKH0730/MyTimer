@@ -1,18 +1,16 @@
-package com.life.myTimer.recyclerView.adapters;
+package com.life.myTimer.ui.main.adapter;
 
-import android.content.Context;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
-import androidx.databinding.Observable;
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.DiffUtil;
+import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.life.myTimer.databinding.ItemImageBinding;
-import com.life.myTimer.recyclerView.viewHolders.DefaultBindingViewHolder;
-import com.life.myTimer.recyclerView.viewHolders.ImageItemViewHolder;
-
-import java.util.List;
+import com.life.myTimer.databinding.ViewholderKindOfFoodBinding;
+import com.life.myTimer.ui.main.model.KindOfFood;
+import com.life.myTimer.ui.main.viewholder.KindOfFoodViewHolder;
 
 /**
  * Created by isaac on 12/08/17.
@@ -22,48 +20,31 @@ import java.util.List;
  * and any model which implements the Observable interface
  */
 
-public class ItemAdapter extends RecyclerView.Adapter<DefaultBindingViewHolder> {
-
-    public enum ItemType {
-        Default,
-        Image
-    }
-
-    private ItemType mItemType;
-    private List<Observable> mItemList;
+public class KindOfFoodAdapter extends ListAdapter<KindOfFood, KindOfFoodViewHolder> {
     private int mScreenWidth;
 
-    private Context context;
-
-    public ItemAdapter(ItemType itemType, List<Observable> itemList, int screenWidth, Context context) {
-        this.mItemType = itemType;
-        this.mItemList = itemList;
+    public KindOfFoodAdapter(@NonNull DiffUtil.ItemCallback<KindOfFood> diffCallback, int screenWidth) {
+        super(diffCallback);
         this.mScreenWidth = screenWidth;
-        this.context = context;
     }
 
     @Override
-    public DefaultBindingViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public KindOfFoodViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater layoutInflater =
                 LayoutInflater.from(parent.getContext());
 
-        ItemImageBinding itemBinding =
-                ItemImageBinding.inflate(layoutInflater, parent, false);
+        ViewholderKindOfFoodBinding itemBinding =
+                ViewholderKindOfFoodBinding.inflate(layoutInflater, parent, false);
 
-        return new ImageItemViewHolder(itemBinding);
+        return new KindOfFoodViewHolder(itemBinding);
     }
 
     @Override
-    public void onBindViewHolder(DefaultBindingViewHolder holder, int position) {
-        Observable listItem = mItemList.get(position);
-
-        int itemSize = calcItemSize();
+    public void onBindViewHolder(KindOfFoodViewHolder holder, int position) {
         int marginSize = calcItemMarginSize();
         int endItemMarginSize = calcEndItemMarginSize();
 
         RecyclerView.LayoutParams lp = (RecyclerView.LayoutParams) holder.itemView.getLayoutParams();
-        lp.height = itemSize;
-        lp.width = itemSize;
 
         int leftMargin = marginSize;
         int rightMargin = marginSize;
@@ -71,7 +52,7 @@ public class ItemAdapter extends RecyclerView.Adapter<DefaultBindingViewHolder> 
         if (position == 0) {
             leftMargin = endItemMarginSize;
             rightMargin /= 2;
-        } else if (position == mItemList.size() - 1) {
+        } else if (position == getCurrentList().size() - 1) {
             leftMargin /= 2;
             rightMargin = endItemMarginSize;
         } else {
@@ -84,12 +65,7 @@ public class ItemAdapter extends RecyclerView.Adapter<DefaultBindingViewHolder> 
 
         holder.itemView.setLayoutParams(lp);
 
-        holder.bind(listItem);
-    }
-
-    @Override
-    public int getItemCount() {
-        return mItemList.size();
+        holder.bind(getCurrentList().get(position));
     }
 
     /**
@@ -99,7 +75,8 @@ public class ItemAdapter extends RecyclerView.Adapter<DefaultBindingViewHolder> 
      * @return the margin size in px to be used for all the non-end items
      */
     private int calcItemMarginSize() {
-        return mScreenWidth / 2 - (calcItemSize() * 3 / 2);
+//        return mScreenWidth / 2 - (calcItemSize() * 3 / 2);
+        return 0;
     }
 
     /**
@@ -109,7 +86,8 @@ public class ItemAdapter extends RecyclerView.Adapter<DefaultBindingViewHolder> 
      * @return the size to be used for all the items
      */
     private int calcItemSize() {
-        return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 50, context.getResources().getDisplayMetrics());
+        int width = (int) (mScreenWidth * 0.58 / 3);
+        return width;
 
     }
 
@@ -119,7 +97,10 @@ public class ItemAdapter extends RecyclerView.Adapter<DefaultBindingViewHolder> 
      *
      * @return the margin size in px to be used for the end items
      */
+//    private int calcEndItemMarginSize() {
+//        return mScreenWidth / 2 - calcItemSize() / 2;
+//    }
     private int calcEndItemMarginSize() {
-        return mScreenWidth / 2 - calcItemSize() / 2;
+        return (int) ((mScreenWidth * 0.58 / 2) - calcItemSize() / 2);
     }
 }

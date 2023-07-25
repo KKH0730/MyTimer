@@ -35,6 +35,7 @@ public class FoodSizeAdapter extends ListAdapter<String, FoodSizeViewHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull FoodSizeViewHolder holder, int position) {
-        holder.bind(getCurrentList().get(position));
+
+        holder.bind(getCurrentList().get(position), getCurrentList().size() - 1 == position);
     }
 }

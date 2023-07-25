@@ -1,3 +1,26 @@
 <resources>
     <string name="app_name">MyTimer</string>
+
+    <string name="confirm">확인</string>
+    <string name="cancel">취소</string>
+    <string name="start">시작하기</string>
+    <string name="continue1">계속하기</string>
+
+    <string name="egg">달걀</string>
+    <string name="stake">스테이크</string>
+    <string name="tea">차</string>
+
+    <string name="timer_complete_title">타이머 완료 알림</string>
+    <string name="timer_complete_content">설정하신 타이머 완료 되었습니다</string>
+
+    <string name="timer_cancel_title">타이머 취소 알림</string>
+    <string name="timer_cancel_content">타이머를 취소 하시겠습니까?</string>
+
+    <string name="timer_start_title">타이머 시작 알림</string>
+    <string name="egg_timer_start_content">달걀을 끓일 물이 있습니까?\n준비되었다면 달걀을 넣은 후 시작하기\n버튼을 선택해 주세요</string>
+    <string name="stake_timer_start_content">후라이팬 또는 팬을 가열하셨나요?\n준비되셨으면 스테이크를 올리시고\n시작하기 버튼을 선택해 주세요</string>
+    <string name="tea_timer_start_content">맛있는 차를 드실 준비가 되셨나요?\n티백 또는 가루를 넣으시고 타이머를 통해\n맛있는 차를 드세요</string>
+
+    <string name="timer_stake_flip_title">타이머 뒤집기 알림</string>
+    <string name="timer_stake_flip_content">사운드가 나오면 스테이크를\n뒤집어 주세요</string>
 </resources>

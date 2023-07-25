@@ -28,16 +28,17 @@ public class FoodSizeViewHolder extends RecyclerView.ViewHolder {
     private void startObserve() {
         viewModel.selectedFoodSizeIndex.observe(lifecycleOwner, index -> {
             if (getAdapterPosition() == index) {
-                binding.tvSize.setTextColor(binding.getRoot().getContext().getColor(R.color.white));
+                binding.mcvSize.setCardBackgroundColor(binding.getRoot().getContext().getColor(R.color.color_283964));
             } else {
-                binding.tvSize.setTextColor(binding.getRoot().getContext().getColor(R.color.color_858585));
+                binding.mcvSize.setCardBackgroundColor(binding.getRoot().getContext().getColor(R.color.color_CBCBCB));
             }
         });
     }
 
-    public void bind(String size) {
+    public void bind(String size, boolean isLastItem) {
         binding.setViewModel(viewModel);
         binding.setPosition(getAdapterPosition());
+        binding.setIsLastItem(isLastItem);
 
         startObserve();
         binding.tvSize.setText(size);

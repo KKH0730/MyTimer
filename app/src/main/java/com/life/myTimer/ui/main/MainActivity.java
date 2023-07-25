@@ -3,46 +3,44 @@ package com.life.myTimer.ui.main;
 import android.animation.Animator;
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
+import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.util.Log;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.View;
 
-import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.databinding.DataBindingUtil;
-import androidx.databinding.Observable;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.DiffUtil;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.LinearSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SnapHelper;
 
 import com.life.myTimer.R;
 import com.life.myTimer.databinding.ActivityMainBinding;
-import com.life.myTimer.recyclerView.SnappyRecyclerView;
-import com.life.myTimer.recyclerView.adapters.ItemAdapter;
-import com.life.myTimer.recyclerView.model.ImageItemModel;
+import com.life.myTimer.ui.main.adapter.KindOfFoodAdapter;
+import com.life.myTimer.ui.main.model.KindOfFood;
 import com.life.myTimer.ui.main.adapter.FoodSizeAdapter;
 import com.life.myTimer.ui.main.model.Subject;
+import com.life.myTimer.utils.DimensionUtils;
 
 import java.util.ArrayList;
-
-import timber.log.Timber;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     private ActivityMainBinding binding;
     private MainViewModel viewModel;
     int minute = 60;
     int second = 1;
-    private ArrayList<String> eggSize = new ArrayList<>();
-    private ArrayList<String> eggTime = new ArrayList<>();
-    private ArrayList<String> stakeSize = new ArrayList<>();
-    private ArrayList<String> stakeTime = new ArrayList<>();
     private ValueAnimator animator;
     private int bottomSheetHeight = 0;
+    private SnapHelper snapHelper = new LinearSnapHelper();
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -63,45 +61,40 @@ public class MainActivity extends AppCompatActivity {
     @SuppressLint("DefaultLocale")
     private void startObserve() {
         viewModel.selectedSubject.observe(this, subject -> {
-            binding.tvSubjectEgg.setTextColor(getColor(R.color.black));
-            binding.tvSubjectEgg.setBackgroundColor(getColor(R.color.white));
-            binding.tvSubjectStake.setTextColor(getColor(R.color.black));
-            binding.tvSubjectStake.setBackgroundColor(getColor(R.color.white));
-            binding.tvSubjectTea.setTextColor(getColor(R.color.black));
-            binding.tvSubjectTea.setBackgroundColor(getColor(R.color.white));
+
+            controlTabIndicator(subject.getName());
 
             if (subject.getName().equals(Subject.EGG.getName())) {
+                binding.ivSettingGuideBubble.setVisibility(View.VISIBLE);
                 binding.ivArrow.setVisibility(View.VISIBLE);
-                binding.tvSubjectEgg.setTextColor(getColor(R.color.white));
-                binding.tvSubjectEgg.setBackgroundColor(getColor(R.color.color_ED8282));
             } else if (subject.getName().equals(Subject.STAKE.getName())) {
+                binding.ivSettingGuideBubble.setVisibility(View.VISIBLE);
                 binding.ivArrow.setVisibility(View.VISIBLE);
-                binding.tvSubjectStake.setTextColor(getColor(R.color.white));
-                binding.tvSubjectStake.setBackgroundColor(getColor(R.color.color_ED8282));
             } else if (subject.getName().equals(Subject.TEA.getName())){
                 boolean isShow = binding.clBottomSheet.getHeight() == 0 || binding.clBottomSheet.getVisibility() == View.INVISIBLE || binding.clBottomSheet.getVisibility() == View.GONE;
                 if (!isShow) {
                     onClickShowBottomSheet();
                 }
-
+                binding.ivSettingGuideBubble.setVisibility(View.GONE);
                 binding.ivArrow.setVisibility(View.GONE);
-                binding.tvSubjectTea.setTextColor(getColor(R.color.white));
-                binding.tvSubjectTea.setBackgroundColor(getColor(R.color.color_ED8282));
             }
         });
 
         viewModel.isColdFood.observe(this, isCold -> {
-            binding.tvCold.setBackgroundColor(Color.parseColor("#E68D50"));
-            binding.tvCold.setTextColor(getColor(R.color.black));
-            binding.tvNotCold.setBackgroundColor(Color.parseColor("#E68D50"));
-            binding.tvNotCold.setTextColor(getColor(R.color.black));
+            binding.tvCold.setBackgroundColor(getColor(R.color.color_CBCBCB));
+            binding.tvNotCold.setBackgroundColor(getColor(R.color.color_CBCBCB));
 
             if (isCold) {
-                binding.tvCold.setBackgroundColor(getColor(R.color.color_ED8282));
-                binding.tvCold.setTextColor(getColor(R.color.white));
+                binding.tvCold.setBackgroundColor(getColor(R.color.color_4466DE));
             } else {
-                binding.tvNotCold.setBackgroundColor(getColor(R.color.color_ED8282));
-                binding.tvNotCold.setTextColor(getColor(R.color.white));
+                binding.tvNotCold.setBackgroundColor(getColor(R.color.color_4466DE));
+            }
+        });
+
+        viewModel.kindOfFoodList.observe(this, kindOfFoods -> {
+            RecyclerView.Adapter adapter = binding.rvKindOfFood.getAdapter();
+            if (adapter instanceof KindOfFoodAdapter) {
+                ((KindOfFoodAdapter) adapter).submitList(kindOfFoods);
             }
         });
 
@@ -153,41 +146,100 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setKindOfFoodRecyclerView() {
-        ArrayList<Observable> itemModelsMiddle = fillImageArr(R.drawable.circle_image, 7);
-        ItemAdapter itemAdapterMiddle = new ItemAdapter(ItemAdapter.ItemType.Image, itemModelsMiddle, binding.rvKindOfFood.getViewWidth(), this);
-        binding.rvKindOfFood.setAdapter(itemAdapterMiddle);
+        KindOfFoodAdapter kindOfFoodAdapterMiddle = new KindOfFoodAdapter(
+                new DiffUtil.ItemCallback<KindOfFood>() {
+                    @Override
+                    public boolean areItemsTheSame(@NonNull KindOfFood oldItem, @NonNull KindOfFood newItem) {
+                        return oldItem.getKindOfFood().getName().equals(newItem.getKindOfFood().getName());
+                    }
 
-        SnapHelper snapHelper = new LinearSnapHelper();
+                    @Override
+                    public boolean areContentsTheSame(@NonNull KindOfFood oldItem, @NonNull KindOfFood newItem) {
+                        return false;
+                    }
+                },
+                DimensionUtils.getDeviceWidth()
+        );
+        binding.rvKindOfFood.setAdapter(kindOfFoodAdapterMiddle);
+        binding.rvKindOfFood.setItemAnimator(null);
         snapHelper.attachToRecyclerView(binding.rvKindOfFood);
         binding.rvKindOfFood.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
-                if (recyclerView.getLayoutManager() != null) {
-                    View view = snapHelper.findSnapView(recyclerView.getLayoutManager());
-                    if (view != null) {
-                        int position = recyclerView.getLayoutManager().getPosition(view);
-                        int currentPosition = RecyclerView.NO_POSITION;
 
-                        if (currentPosition != position) {
-                            currentPosition = position;
-                            Log.e("kkhdev", "pos : " + currentPosition);
+                RecyclerView.Adapter adapter = recyclerView.getAdapter();
+                if (adapter instanceof KindOfFoodAdapter) {
+                    KindOfFoodAdapter kindOfAdapter = ((KindOfFoodAdapter) adapter);
+
+                    int currentPosition = getCurrentKindOfFoodPosition();
+                    if (currentPosition == 0 || currentPosition == kindOfAdapter.getItemCount() - 1) {
+                        if (currentPosition == 0) {
+                            binding.tvLeftArrow.setImageTintList(ColorStateList.valueOf(ContextCompat.getColor(MainActivity.this, R.color.color_33FFFFFF)));
+                        } else {
+                            binding.tvRightArrow.setImageTintList(ColorStateList.valueOf(ContextCompat.getColor(MainActivity.this, R.color.color_33FFFFFF)));
+                        }
+                    } else {
+                        binding.tvLeftArrow.setImageTintList(ColorStateList.valueOf(ContextCompat.getColor(MainActivity.this, R.color.white)));
+                        binding.tvRightArrow.setImageTintList(ColorStateList.valueOf(ContextCompat.getColor(MainActivity.this, R.color.white)));
+                    }
+
+                    List<KindOfFood> kindOfFoodList = ((KindOfFoodAdapter) adapter).getCurrentList();
+                    List<KindOfFood> newKindOfFoodList = new ArrayList<>();
+                    for (int i = 0; i < kindOfFoodList.size(); i ++) {
+                        if (currentPosition == i) {
+                            newKindOfFoodList.add(new KindOfFood(kindOfFoodList.get(i).getKindOfFood(), true));
+                        } else {
+                            newKindOfFoodList.add(new KindOfFood(kindOfFoodList.get(i).getKindOfFood(), false));
                         }
                     }
+
+                    kindOfAdapter.submitList(newKindOfFoodList);
                 }
             }
         });
-
     }
 
-    private ArrayList<Observable> fillImageArr(@DrawableRes int imageRes, int length) {
-        ArrayList<Observable> imageItemModels = new ArrayList<>();
+    private int getCurrentKindOfFoodPosition() {
+        int position;
+        if (binding.rvKindOfFood.getLayoutManager() != null) {
+            View view = snapHelper.findSnapView(binding.rvKindOfFood.getLayoutManager());
+            if (view != null) {
+                int pos = binding.rvKindOfFood.getLayoutManager().getPosition(view);
+                position = RecyclerView.NO_POSITION;
 
-        for(int i = 0; i < length; i++) {
-            imageItemModels.add(new ImageItemModel(imageRes));
+                if (position != pos) {
+                    position = pos;
+                }
+            } else {
+                position = 0;
+            }
+        } else {
+            position = 0;
         }
+        return position;
+    }
 
-        return imageItemModels;
+    private void controlTabIndicator(String subjectName) {
+        binding.ivTabEgg.setImageResource(R.drawable.img_tab_egg_disable);
+        binding.llEggIndicatorContainer.setVisibility(View.GONE);
+
+        binding.ivTabStake.setImageResource(R.drawable.img_tab_stake_disable);
+        binding.llStakeIndicatorContainer.setVisibility(View.GONE);
+
+        binding.ivTabTea.setImageResource(R.drawable.img_tab_tea_disable);
+        binding.llTeaIndicatorContainer.setVisibility(View.GONE);
+
+        if (subjectName.equals(Subject.EGG.getName())) {
+            binding.ivTabEgg.setImageResource(R.drawable.img_tab_egg);
+            binding.llEggIndicatorContainer.setVisibility(View.VISIBLE);
+        } else if (subjectName.equals(Subject.STAKE.getName())) {
+            binding.ivTabStake.setImageResource(R.drawable.img_tab_stake);
+            binding.llStakeIndicatorContainer.setVisibility(View.VISIBLE);
+        } else {
+            binding.ivTabTea.setImageResource(R.drawable.img_tab_tea);
+            binding.llTeaIndicatorContainer.setVisibility(View.VISIBLE);
+        }
     }
 
     private void animateBottomSheetHeight(boolean isShow, int beforeHeight, int afterHeight) {
@@ -209,14 +261,21 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onAnimationStart(@NonNull Animator animation) {
                 if (isShow) {
+                    binding.ivSettingGuideBubble.setVisibility(View.GONE);
+                    binding.ivArrow.setVisibility(View.GONE);
                     binding.clBottomSheet.setVisibility(View.VISIBLE);
+
+                    new Handler(Looper.getMainLooper()).postDelayed(() -> binding.flBottomSheetTouchGuard.setVisibility(View.VISIBLE),  100);
                 }
             }
 
             @Override
             public void onAnimationEnd(@NonNull Animator animation) {
                 if (!isShow) {
+                    binding.ivSettingGuideBubble.setVisibility(View.VISIBLE);
+                    binding.ivArrow.setVisibility(View.VISIBLE);
                     binding.clBottomSheet.setVisibility(View.INVISIBLE);
+                    binding.flBottomSheetTouchGuard.setVisibility(View.GONE);
                 }
             }
         });
@@ -238,6 +297,38 @@ public class MainActivity extends AppCompatActivity {
         animateBottomSheetHeight(isShow, beforeHeight, afterHeight);
     }
 
+    public void onClickKindOfFoodArrow(boolean isLeft) {
+        int currentPosition = getCurrentKindOfFoodPosition();
+
+        int targetPosition = -1;
+        if (isLeft) {
+            if (currentPosition - 1 < 0) {
+                return;
+            }
+            targetPosition = currentPosition - 1;
+        } else {
+            KindOfFoodAdapter adapter = (KindOfFoodAdapter) binding.rvKindOfFood.getAdapter();
+            if (currentPosition + 1 >= adapter.getCurrentList().size()) {
+                return;
+            }
+            targetPosition = currentPosition + 1;
+        }
+
+        RecyclerView.LayoutManager layoutManager = binding.rvKindOfFood.getLayoutManager();
+        if (layoutManager instanceof LinearLayoutManager) {
+            View view = layoutManager.findViewByPosition(targetPosition);
+
+            if (view != null) {
+                int[] snapDistance = snapHelper.calculateDistanceToFinalSnap(binding.rvKindOfFood.getLayoutManager(), view);
+
+                if (snapDistance != null) {
+                    if (snapDistance[0] != 0 || snapDistance[1] != 0) {
+                        binding.rvKindOfFood.smoothScrollBy(snapDistance[0], snapDistance[1], null, 500);
+                    }
+                }
+            }
+        }
+    }
 
     @Override
     protected void onDestroy() {

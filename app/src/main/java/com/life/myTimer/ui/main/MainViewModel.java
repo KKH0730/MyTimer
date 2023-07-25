@@ -1,14 +1,13 @@
 package com.life.myTimer.ui.main;
 
 
-import android.util.Log;
-
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.life.myTimer.App;
 import com.life.myTimer.R;
+import com.life.myTimer.ui.main.model.KindOfFood;
 import com.life.myTimer.ui.main.model.Subject;
 
 import java.util.ArrayList;
@@ -64,8 +63,8 @@ public class MainViewModel extends ViewModel {
     private MutableLiveData<Integer> _selectedFoodSizeIndex = new MutableLiveData<>(0);
     public LiveData<Integer> selectedFoodSizeIndex = _selectedFoodSizeIndex;
 
-    private MutableLiveData<List<Subject.KindOfFood>> _kindOfFoodList = new MutableLiveData<>();
-    public LiveData<List<Subject.KindOfFood>> kindOfFoodList = _kindOfFoodList;
+    private MutableLiveData<List<KindOfFood>> _kindOfFoodList = new MutableLiveData<>();
+    public LiveData<List<KindOfFood>> kindOfFoodList = _kindOfFoodList;
 
     private MutableLiveData<Integer> _selectedKindOfFoodIndex = new MutableLiveData<>(0);
     public LiveData<Integer> selectedKindOfFoodIndex = _selectedKindOfFoodIndex;
@@ -121,24 +120,24 @@ public class MainViewModel extends ViewModel {
     }
 
     public void updateKindOfFoodList(Subject subject) {
-        ArrayList<Subject.KindOfFood> kindOfFoodList = new ArrayList<>();
+        ArrayList<KindOfFood> kindOfFoodList = new ArrayList<>();
 
         if (subject.getName().equals(Subject.EGG.getName())) {
-            kindOfFoodList.add(Subject.KindOfFood.SOFT_BOILED);
-            kindOfFoodList.add(Subject.KindOfFood.MIDDLE_BOILED);
-            kindOfFoodList.add(Subject.KindOfFood.HARD_BOILED);
+            kindOfFoodList.add(new KindOfFood(Subject.KindOfFood.SOFT_BOILED, true));
+            kindOfFoodList.add(new KindOfFood(Subject.KindOfFood.MIDDLE_BOILED, false));
+            kindOfFoodList.add(new KindOfFood(Subject.KindOfFood.HARD_BOILED, false));
         } else if (subject.getName().equals(Subject.STAKE.getName())) {
-            kindOfFoodList.add(Subject.KindOfFood.BLUE_RARE);
-            kindOfFoodList.add(Subject.KindOfFood.RARE);
-            kindOfFoodList.add(Subject.KindOfFood.MEDIUM_RARE);
-            kindOfFoodList.add(Subject.KindOfFood.MEDIUM);
-            kindOfFoodList.add(Subject.KindOfFood.MEDIUM_WELDON);
-            kindOfFoodList.add(Subject.KindOfFood.WELDON);
+            kindOfFoodList.add(new KindOfFood(Subject.KindOfFood.BLUE_RARE, true));
+            kindOfFoodList.add(new KindOfFood(Subject.KindOfFood.RARE, false));
+            kindOfFoodList.add(new KindOfFood(Subject.KindOfFood.MEDIUM_RARE, false));
+            kindOfFoodList.add(new KindOfFood(Subject.KindOfFood.MEDIUM, false));
+            kindOfFoodList.add(new KindOfFood(Subject.KindOfFood.MEDIUM_WELDON, false));
+            kindOfFoodList.add(new KindOfFood(Subject.KindOfFood.WELDON, false));
         } else {
-            kindOfFoodList.add(Subject.KindOfFood.BLACK_TEA);
-            kindOfFoodList.add(Subject.KindOfFood.GREEN_TEA);
-            kindOfFoodList.add(Subject.KindOfFood.HUB_TEA);
-            kindOfFoodList.add(Subject.KindOfFood.WHITE_TEA);
+            kindOfFoodList.add(new KindOfFood(Subject.KindOfFood.BLACK_TEA, true));
+            kindOfFoodList.add(new KindOfFood(Subject.KindOfFood.GREEN_TEA, false));
+            kindOfFoodList.add(new KindOfFood(Subject.KindOfFood.HUB_TEA, false));
+            kindOfFoodList.add(new KindOfFood(Subject.KindOfFood.WHITE_TEA, false));
         }
 
         _kindOfFoodList.setValue(kindOfFoodList);
@@ -164,18 +163,18 @@ public class MainViewModel extends ViewModel {
     }
 
     private int getEggTime() {
-        Subject.KindOfFood kindOfFood = _kindOfFoodList.getValue().get(_selectedKindOfFoodIndex.getValue());
+        KindOfFood kindOfFood = _kindOfFoodList.getValue().get(_selectedKindOfFoodIndex.getValue());
         int currentEggSizeIndex = _selectedFoodSizeIndex.getValue();
         boolean isCold = _isColdFood.getValue();
 
         int time;
-        if (kindOfFood == Subject.KindOfFood.SOFT_BOILED) {
+        if (kindOfFood.getKindOfFood() == Subject.KindOfFood.SOFT_BOILED) {
             if (isCold) {
                 time = softBoiledColdEggTimes[currentEggSizeIndex];
             } else {
                 time = softBoiledEggTimes[currentEggSizeIndex];
             }
-        } else if (kindOfFood == Subject.KindOfFood.MIDDLE_BOILED){
+        } else if (kindOfFood.getKindOfFood() == Subject.KindOfFood.MIDDLE_BOILED){
             if (isCold) {
                 time = middleBoiledColdEggTimes[currentEggSizeIndex];
             } else {
@@ -192,37 +191,37 @@ public class MainViewModel extends ViewModel {
     }
 
     private int getStakeTime() {
-        Subject.KindOfFood kindOfFood = _kindOfFoodList.getValue().get(_selectedKindOfFoodIndex.getValue());
+        KindOfFood kindOfFood = _kindOfFoodList.getValue().get(_selectedKindOfFoodIndex.getValue());
         int currentStakeSizeIndex = _selectedFoodSizeIndex.getValue();
         boolean isCold = _isColdFood.getValue();
 
 
         int time;
-        if (kindOfFood == Subject.KindOfFood.BLUE_RARE) {
+        if (kindOfFood.getKindOfFood() == Subject.KindOfFood.BLUE_RARE) {
             if (isCold) {
                 time = blueRareColdStakeTimes[currentStakeSizeIndex];
             } else {
                 time = blueRareStakeTimes[currentStakeSizeIndex];
             }
-        } else if (kindOfFood == Subject.KindOfFood.RARE){
+        } else if (kindOfFood.getKindOfFood() == Subject.KindOfFood.RARE){
             if (isCold) {
                 time = rareColdStakeTimes[currentStakeSizeIndex];
             } else {
                 time = rareStakeTimes[currentStakeSizeIndex];
             }
-        } else if (kindOfFood == Subject.KindOfFood.MEDIUM_RARE){
+        } else if (kindOfFood.getKindOfFood() == Subject.KindOfFood.MEDIUM_RARE){
             if (isCold) {
                 time = mediumRareColdStakeTimes[currentStakeSizeIndex];
             } else {
                 time = mediumRareStakeTimes[currentStakeSizeIndex];
             }
-        } else if (kindOfFood == Subject.KindOfFood.MEDIUM){
+        } else if (kindOfFood.getKindOfFood() == Subject.KindOfFood.MEDIUM){
             if (isCold) {
                 time = mediumColdStakeTimes[currentStakeSizeIndex];
             } else {
                 time = mediumStakeTimes[currentStakeSizeIndex];
             }
-        } else if (kindOfFood == Subject.KindOfFood.MEDIUM_WELDON){
+        } else if (kindOfFood.getKindOfFood() == Subject.KindOfFood.MEDIUM_WELDON){
             if (isCold) {
                 time = mediumWeldonColdStakeTimes[currentStakeSizeIndex];
             } else {
