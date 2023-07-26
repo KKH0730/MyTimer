@@ -23,7 +23,8 @@
     </integer-array>
 
     <integer-array name="softBoiledColdEggTime">
-        <item>240</item>
+<!--        <item>240</item>-->
+        <item>10</item>
         <item>280</item>
         <item>320</item>
         <item>340</item>
@@ -65,7 +66,8 @@
     </integer-array>
 
     <integer-array name="blueRareColdStakeTime">
-        <item>110</item>
+<!--        <item>110</item>-->
+        <item>10</item>
         <item>150</item>
         <item>270</item>
         <item>390</item>
@@ -83,21 +85,7 @@
         <item>270</item>
         <item>390</item>
         <item>510</item>
-    </integer-array>
-
-    <integer-array name="mediumRareStakeTime">
-        <item>180</item>
-        <item>300</item>
-        <item>450</item>
-        <item>600</item>
-    </integer-array>
-
-    <integer-array name="mediumRareColdStakeTime">
-        <item>210</item>
-        <item>330</item>
-        <item>480</item>
-        <item>630</item>
-    </integer-array>
+    </integer-array>=
 
     <integer-array name="mediumStakeTime">
         <item>210</item>
@@ -111,34 +99,6 @@
         <item>390</item>
         <item>570</item>
         <item>750</item>
-    </integer-array>
-
-    <integer-array name="mediumWeldonStakeTime">
-        <item>270</item>
-        <item>450</item>
-        <item>630</item>
-        <item>810</item>
-    </integer-array>
-
-    <integer-array name="mediumWeldonColdStakeTime">
-        <item>300</item>
-        <item>480</item>
-        <item>660</item>
-        <item>840</item>
-    </integer-array>
-
-    <integer-array name="weldonStakeTime">
-        <item>420</item>
-        <item>600</item>
-        <item>750</item>
-        <item>930</item>
-    </integer-array>
-
-    <integer-array name="weldonColdStakeTime">
-        <item>450</item>
-        <item>630</item>
-        <item>780</item>
-        <item>960</item>
     </integer-array>
 
     <integer-array name="teaTime">

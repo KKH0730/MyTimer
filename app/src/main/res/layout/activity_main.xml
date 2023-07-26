@@ -230,44 +230,55 @@
             app:layout_constraintBottom_toBottomOf="@+id/rvKindOfFood"
             app:layout_constraintStart_toEndOf="@+id/rvKindOfFood"/>
 
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/ivFood"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginTop="61dp"
+            android:layout_marginBottom="17dp"
+            android:src="@drawable/img_egg_soft_boiled"
+            app:layout_constraintDimensionRatio="1:1"
+            app:layout_constraintTop_toBottomOf="@+id/rvKindOfFood"
+            app:layout_constraintBottom_toTopOf="@+id/tvRemainTime"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
+
          <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/tvRemainTime"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@color/black"
-            android:textSize="40dp"
+            android:layout_height="90dp"
+            android:textColor="@color/white"
+            android:textSize="60dp"
             android:textStyle="bold"
-            app:layout_constraintBottom_toBottomOf="parent"
+             android:layout_marginBottom="33dp"
+            app:layout_constraintBottom_toTopOf="@+id/mcvStart"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
             tools:text="04:00" />
 
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/tvStart"
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/mcvStart"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:background="#DDA1A1"
-            android:paddingHorizontal="16dp"
-            android:paddingVertical="10dp"
-            android:text="start"
-            android:textColor="@color/black"
-            android:onClick="@{() -> viewModel.startTimer()}"
-            android:textSize="24dp"
+            android:layout_marginBottom="12dp"
+            app:cardCornerRadius="8dp"
+            app:cardElevation="0dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tvRemainTime" />
+            app:layout_constraintBottom_toTopOf="@+id/ivSettingGuideBubble">
 
-        <androidx.appcompat.widget.AppCompatImageView
-            android:id="@+id/ivSetting"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:layout_marginEnd="24dp"
-            android:src="@drawable/ic_launcher_foreground"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="1"
-            app:layout_constraintTop_toTopOf="parent" />
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvStart"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:background="@color/color_FFFFDB1E"
+                android:text="@string/start"
+                android:textColor="@color/color_283964"
+                android:onClick="@{() -> activity.onClickStartTimer()}"
+                android:textSize="16dp"
+                android:paddingVertical="13dp"
+                android:paddingHorizontal="109dp"/>
+        </com.google.android.material.card.MaterialCardView>
 
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/ivSettingGuideBubble"
@@ -285,7 +296,7 @@
             android:layout_marginBottom="24dp"
             android:onClick="@{() -> activity.onClickShowBottomSheet()}"
             android:src="@drawable/circle_solid_color_33ffffff_arrow_down"
-            app:layout_constraintBottom_toTopOf="@+id/flAnimatedContainer"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
 

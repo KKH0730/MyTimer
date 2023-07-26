@@ -1,6 +1,8 @@
 package com.life.myTimer.ui.main;
 
 
+import android.util.Log;
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
@@ -37,17 +39,8 @@ public class MainViewModel extends ViewModel {
     private int[] rareColdStakeTimes = App.getInstance().getResources().getIntArray(R.array.rareColdStakeTime);
     private int[] rareStakeTimes = App.getInstance().getResources().getIntArray(R.array.rareStakeTime);
 
-    private int[] mediumRareColdStakeTimes = App.getInstance().getResources().getIntArray(R.array.mediumRareColdStakeTime);
-    private int[] mediumRareStakeTimes = App.getInstance().getResources().getIntArray(R.array.mediumRareStakeTime);
-
     private int[] mediumColdStakeTimes = App.getInstance().getResources().getIntArray(R.array.mediumColdStakeTime);
     private int[] mediumStakeTimes = App.getInstance().getResources().getIntArray(R.array.mediumStakeTime);
-
-    private int[] mediumWeldonColdStakeTimes = App.getInstance().getResources().getIntArray(R.array.mediumWeldonColdStakeTime);
-    private int[] mediumWeldonStakeTimes = App.getInstance().getResources().getIntArray(R.array.mediumWeldonStakeTime);
-
-    private int[] weldonColdStakeTimes = App.getInstance().getResources().getIntArray(R.array.weldonColdStakeTime);
-    private int[] weldonStakeTimes = App.getInstance().getResources().getIntArray(R.array.weldonStakeTime);
 
     private int[] teaTimes = App.getInstance().getResources().getIntArray(R.array.teaTime);
 
@@ -66,11 +59,16 @@ public class MainViewModel extends ViewModel {
     private MutableLiveData<List<KindOfFood>> _kindOfFoodList = new MutableLiveData<>();
     public LiveData<List<KindOfFood>> kindOfFoodList = _kindOfFoodList;
 
-    private MutableLiveData<Integer> _selectedKindOfFoodIndex = new MutableLiveData<>(0);
-    public LiveData<Integer> selectedKindOfFoodIndex = _selectedKindOfFoodIndex;
+    private MutableLiveData<Integer> _foodImage = new MutableLiveData<>();
+    public LiveData<Integer> foodImage = _foodImage;
+
+    private int selectedKindOfFoodIndex = 0;
 
     private MutableLiveData<Integer> _time = new MutableLiveData<>();
     public LiveData<Integer> time = _time;
+
+    private MutableLiveData<Object> _ringSongForFlipStake = new MutableLiveData<>();
+    public LiveData<Object> ringSongForFlipStake = _ringSongForFlipStake;
 
     private Timer timer = new Timer();
 
@@ -83,7 +81,11 @@ public class MainViewModel extends ViewModel {
     public void initializeData() {
         _isColdFood.setValue(true);
         _selectedFoodSizeIndex.setValue(0);
-        _selectedKindOfFoodIndex.setValue(0);
+        selectedKindOfFoodIndex = 0;
+    }
+
+    public Subject getSelectedSubject() {
+        return _selectedSubject.getValue();
     }
 
     public void updateSelectedSubject(Subject subject) {
@@ -123,28 +125,27 @@ public class MainViewModel extends ViewModel {
         ArrayList<KindOfFood> kindOfFoodList = new ArrayList<>();
 
         if (subject.getName().equals(Subject.EGG.getName())) {
-            kindOfFoodList.add(new KindOfFood(Subject.KindOfFood.SOFT_BOILED, true));
-            kindOfFoodList.add(new KindOfFood(Subject.KindOfFood.MIDDLE_BOILED, false));
-            kindOfFoodList.add(new KindOfFood(Subject.KindOfFood.HARD_BOILED, false));
+            kindOfFoodList.add(new KindOfFood(Subject.KindOfFood.SOFT_BOILED, R.drawable.img_egg_soft_boiled, true));
+            kindOfFoodList.add(new KindOfFood(Subject.KindOfFood.MIDDLE_BOILED, R.drawable.img_egg_middle_boiled, false));
+            kindOfFoodList.add(new KindOfFood(Subject.KindOfFood.HARD_BOILED, R.drawable.img_egg_hard_boiled, false));
         } else if (subject.getName().equals(Subject.STAKE.getName())) {
-            kindOfFoodList.add(new KindOfFood(Subject.KindOfFood.BLUE_RARE, true));
-            kindOfFoodList.add(new KindOfFood(Subject.KindOfFood.RARE, false));
-            kindOfFoodList.add(new KindOfFood(Subject.KindOfFood.MEDIUM_RARE, false));
-            kindOfFoodList.add(new KindOfFood(Subject.KindOfFood.MEDIUM, false));
-            kindOfFoodList.add(new KindOfFood(Subject.KindOfFood.MEDIUM_WELDON, false));
-            kindOfFoodList.add(new KindOfFood(Subject.KindOfFood.WELDON, false));
+            kindOfFoodList.add(new KindOfFood(Subject.KindOfFood.BLUE_RARE, R.drawable.img_stake_blue_rare,true));
+            kindOfFoodList.add(new KindOfFood(Subject.KindOfFood.RARE, R.drawable.img_stake_rare,false));
+            kindOfFoodList.add(new KindOfFood(Subject.KindOfFood.MEDIUM, R.drawable.img_stake_medium,false));
         } else {
-            kindOfFoodList.add(new KindOfFood(Subject.KindOfFood.BLACK_TEA, true));
-            kindOfFoodList.add(new KindOfFood(Subject.KindOfFood.GREEN_TEA, false));
-            kindOfFoodList.add(new KindOfFood(Subject.KindOfFood.HUB_TEA, false));
-            kindOfFoodList.add(new KindOfFood(Subject.KindOfFood.WHITE_TEA, false));
+            kindOfFoodList.add(new KindOfFood(Subject.KindOfFood.BLACK_TEA, R.drawable.img_black_tea,true));
+            kindOfFoodList.add(new KindOfFood(Subject.KindOfFood.GREEN_TEA, R.drawable.img_green_tea,false));
+            kindOfFoodList.add(new KindOfFood(Subject.KindOfFood.HUB_TEA, R.drawable.img_hub_tea,false));
+            kindOfFoodList.add(new KindOfFood(Subject.KindOfFood.WHITE_TEA, R.drawable.img_black_tea,false));
         }
 
         _kindOfFoodList.setValue(kindOfFoodList);
     }
 
-    public void updateSelectedKindOfFood(int index) {
-        _selectedKindOfFoodIndex.setValue(index);
+    public void updateSelectedKindOfFood(int index, int imageRes) {
+        selectedKindOfFoodIndex = index;
+        _foodImage.setValue(imageRes);
+        setupTimer();
     }
 
     public void setupTimer() {
@@ -163,7 +164,7 @@ public class MainViewModel extends ViewModel {
     }
 
     private int getEggTime() {
-        KindOfFood kindOfFood = _kindOfFoodList.getValue().get(_selectedKindOfFoodIndex.getValue());
+        KindOfFood kindOfFood = _kindOfFoodList.getValue().get(selectedKindOfFoodIndex);
         int currentEggSizeIndex = _selectedFoodSizeIndex.getValue();
         boolean isCold = _isColdFood.getValue();
 
@@ -191,7 +192,7 @@ public class MainViewModel extends ViewModel {
     }
 
     private int getStakeTime() {
-        KindOfFood kindOfFood = _kindOfFoodList.getValue().get(_selectedKindOfFoodIndex.getValue());
+        KindOfFood kindOfFood = _kindOfFoodList.getValue().get(selectedKindOfFoodIndex);
         int currentStakeSizeIndex = _selectedFoodSizeIndex.getValue();
         boolean isCold = _isColdFood.getValue();
 
@@ -209,57 +210,83 @@ public class MainViewModel extends ViewModel {
             } else {
                 time = rareStakeTimes[currentStakeSizeIndex];
             }
-        } else if (kindOfFood.getKindOfFood() == Subject.KindOfFood.MEDIUM_RARE){
-            if (isCold) {
-                time = mediumRareColdStakeTimes[currentStakeSizeIndex];
-            } else {
-                time = mediumRareStakeTimes[currentStakeSizeIndex];
-            }
-        } else if (kindOfFood.getKindOfFood() == Subject.KindOfFood.MEDIUM){
+        }  else {
             if (isCold) {
                 time = mediumColdStakeTimes[currentStakeSizeIndex];
             } else {
                 time = mediumStakeTimes[currentStakeSizeIndex];
-            }
-        } else if (kindOfFood.getKindOfFood() == Subject.KindOfFood.MEDIUM_WELDON){
-            if (isCold) {
-                time = mediumWeldonColdStakeTimes[currentStakeSizeIndex];
-            } else {
-                time = mediumWeldonStakeTimes[currentStakeSizeIndex];
-            }
-        } else {
-            if (isCold) {
-                time = weldonColdStakeTimes[currentStakeSizeIndex];
-            } else {
-                time = weldonStakeTimes[currentStakeSizeIndex];
             }
         }
         return time;
     }
 
     private int getTeaTime() {
-        int selectedTeaIndex = _selectedKindOfFoodIndex.getValue();
-        return teaTimes[selectedTeaIndex];
+        return teaTimes[selectedKindOfFoodIndex];
     }
 
-    public void startTimer() {
-        timer.cancel();
-        timer = new Timer();
-        TimerTask timerTask = new TimerTask() {
-            @Override
-            public void run() {
-                try {
-                    int time  = _time.getValue();
-                    if (time - 1 >= 0) {
-                        _time.postValue(time - 1);
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        };
+    private int getStakeFlipTime() {
+        return getStakeTime() / 2;
+    }
 
-        timer.schedule(timerTask, 0, 1000);
+    public void pauseTimer() {
+        if (timer != null) {
+            timer.cancel();
+        }
+    }
+
+    public void stopTimer() {
+        if (timer != null) {
+            timer.cancel();
+            timer.purge();
+
+            setupTimer();
+        }
+    }
+
+    public void startTimer(boolean isResume) {
+        Subject subject = selectedSubject.getValue();
+        boolean isNeedRinging = false;
+        int ringingTime = getStakeFlipTime();
+        if (subject != null) {
+            if (subject.getName().equals(Subject.EGG.getName())) {
+                _foodImage.setValue(R.drawable.img_egg_cook);
+            } else if (subject.getName().equals(Subject.STAKE.getName())){
+                isNeedRinging = true;
+                _foodImage.setValue(R.drawable.img_stake_cook);
+            } else {
+                _foodImage.setValue(R.drawable.img_tea_cook);
+            }
+
+            timer.cancel();
+            timer = new Timer();
+            boolean finalIsNeedRinging = isNeedRinging;
+            TimerTask timerTask = new TimerTask() {
+                @Override
+                public void run() {
+                    try {
+                        int time  = _time.getValue();
+                        if (time - 1 >= 0) {
+                            _time.postValue(time - 1);
+
+                            if (finalIsNeedRinging && time - 1 == ringingTime) {
+                                Log.e("kkhdev", "time : " + time + ", ringingTime : " +ringingTime);
+                                _ringSongForFlipStake.postValue(new Object());
+                            }
+
+                            if (time <= 0) {
+                                this.cancel();
+                                timer.cancel();
+                                timer.purge();
+                            }
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            };
+
+            timer.schedule(timerTask, 0, 1000);
+        }
     }
 
     @Override
