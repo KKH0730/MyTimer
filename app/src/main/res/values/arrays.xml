@@ -23,8 +23,7 @@
     </integer-array>
 
     <integer-array name="softBoiledColdEggTime">
-<!--        <item>240</item>-->
-        <item>10</item>
+        <item>240</item>
         <item>280</item>
         <item>320</item>
         <item>340</item>
@@ -66,8 +65,7 @@
     </integer-array>
 
     <integer-array name="blueRareColdStakeTime">
-<!--        <item>110</item>-->
-        <item>10</item>
+        <item>110</item>
         <item>150</item>
         <item>270</item>
         <item>390</item>

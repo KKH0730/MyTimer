@@ -14,7 +14,7 @@
     <string name="timer_complete_title">타이머 완료 알림</string>
     <string name="timer_complete_content">설정하신 타이머 완료 되었습니다</string>
 
-    <string name="timer_cancel_title">타이머 취소 알림</string>
+    <string name="timer_cancel_title">타이머 중지 알림</string>
     <string name="timer_cancel_content">타이머를 취소 하시겠습니까?</string>
 
     <string name="timer_start_title">타이머 시작 알림</string>

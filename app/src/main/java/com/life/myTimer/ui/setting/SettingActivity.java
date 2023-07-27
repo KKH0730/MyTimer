@@ -19,6 +19,8 @@ public class SettingActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_setting, null);
+        binding.setActivity(this);
+
         setAppVersion();
     }
 

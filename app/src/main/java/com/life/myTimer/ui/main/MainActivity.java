@@ -3,14 +3,21 @@ package com.life.myTimer.ui.main;
 import android.animation.Animator;
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.drawable.ColorDrawable;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
@@ -19,6 +26,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.ContextCompat;
 import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.ViewModelProvider;
@@ -27,30 +36,44 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.LinearSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SnapHelper;
+import androidx.work.Data;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.PeriodicWorkRequest;
+import androidx.work.WorkManager;
+import androidx.work.WorkRequest;
 
+import com.life.myTimer.App;
+import com.life.myTimer.AppStateDetectListener;
 import com.life.myTimer.R;
 import com.life.myTimer.databinding.ActivityMainBinding;
 import com.life.myTimer.databinding.LayoutOneButtonDialogBinding;
 import com.life.myTimer.databinding.LayoutTwoButtonDialogBinding;
+import com.life.myTimer.ui.TimerWorkManager;
 import com.life.myTimer.ui.main.adapter.FoodSizeAdapter;
 import com.life.myTimer.ui.main.adapter.KindOfFoodAdapter;
 import com.life.myTimer.ui.main.model.KindOfFood;
 import com.life.myTimer.ui.main.model.Subject;
+import com.life.myTimer.ui.setting.SettingActivity;
+import com.life.myTimer.utils.Constants;
 import com.life.myTimer.utils.DimensionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends AppCompatActivity {
     private ActivityMainBinding binding;
     private MainViewModel viewModel;
-    int minute = 60;
-    int second = 1;
     private ValueAnimator animator;
     private int bottomSheetHeight = 0;
     private SnapHelper snapHelper = new LinearSnapHelper();
     private AlertDialog alertDialog;
     private Ringtone ringtone;
+    public static boolean blockTimer = false;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -63,6 +86,7 @@ public class MainActivity extends AppCompatActivity {
         binding.setViewModel(viewModel);
 
         startObserve();
+        setAppStateListener();
         setBottomSheetHeight();
         setFoodSizeRecyclerView();
         setKindOfFoodRecyclerView();
@@ -71,7 +95,6 @@ public class MainActivity extends AppCompatActivity {
     @SuppressLint("DefaultLocale")
     private void startObserve() {
         viewModel.selectedSubject.observe(this, subject -> {
-
             setTimerStartButton(false);
             controlTabIndicator(subject.getName());
 
@@ -103,6 +126,8 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 binding.tvNotCold.setBackgroundColor(getColor(R.color.color_4466DE));
             }
+
+            initializeTimer();
         });
 
         viewModel.kindOfFoodList.observe(this, kindOfFoods -> {
@@ -124,6 +149,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        viewModel.selectedFoodSizeIndex.observe(this, index -> initializeTimer());
+
         viewModel.time.observe(this, time -> {
             if (time == 0) {
                 Subject subject = viewModel.getSelectedSubject();
@@ -141,15 +168,7 @@ public class MainActivity extends AppCompatActivity {
                     layoutOneButtonDialogBinding.tvConfirm.setText(getString(R.string.confirm));
                     layoutOneButtonDialogBinding.tvConfirm.setOnClickListener(v -> {
                         stopRingtone();
-
-                        RecyclerView.Adapter adapter = binding.rvKindOfFood.getAdapter();
-                        if (adapter instanceof KindOfFoodAdapter) {
-                            KindOfFoodAdapter kindOfFoodAdapter = (KindOfFoodAdapter) adapter;
-                            int currentPosition = getCurrentKindOfFoodPosition();
-                            viewModel.updateSelectedKindOfFood(currentPosition, kindOfFoodAdapter.getCurrentList().get(currentPosition).getFoodImageResource());
-                            viewModel.setupTimer();
-                            setTimerStartButton(false);
-                        }
+                        initializeTimer();
                         alertDialog.dismiss();
                     });
                 }
@@ -179,6 +198,35 @@ public class MainActivity extends AppCompatActivity {
                 viewModel.startTimer(true);
                 alertDialog.dismiss();
             });
+        });
+    }
+
+    private void setAppStateListener() {
+        App.getInstance().setAppStateDetectListener(new AppStateDetectListener() {
+            @Override
+            public void onForegroundDetected() {
+                blockTimer = true;
+                WorkManager.getInstance(MainActivity.this).cancelAllWork();
+                NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                if (notificationManager != null) {
+                    notificationManager.cancel(Constants.NOTICIATION_ID);
+                }
+            }
+
+            @Override
+            public void onBackgroundDetected() {
+                if (!binding.tvStart.getText().equals(getString(R.string.start))) {
+                    blockTimer = false;
+                    Data inputData = new Data.Builder()
+                            .putInt("time", viewModel.getTime())
+                            .build();
+                    WorkRequest timerWorkRequest = new OneTimeWorkRequest.Builder(TimerWorkManager.class)
+                            .setInputData(inputData)
+                            .build();
+                    WorkManager workManager = WorkManager.getInstance(MainActivity.this);
+                    workManager.enqueue(timerWorkRequest);
+                }
+            }
         });
     }
 
@@ -232,10 +280,10 @@ public class MainActivity extends AppCompatActivity {
 
                 RecyclerView.Adapter adapter = recyclerView.getAdapter();
                 if (adapter instanceof KindOfFoodAdapter) {
-                    KindOfFoodAdapter kindOfAdapter = ((KindOfFoodAdapter) adapter);
+                    KindOfFoodAdapter kindOfFoodAdapter = ((KindOfFoodAdapter) adapter);
 
                     int currentPosition = getCurrentKindOfFoodPosition();
-                    if (currentPosition == 0 || currentPosition == kindOfAdapter.getItemCount() - 1) {
+                    if (currentPosition == 0 || currentPosition == kindOfFoodAdapter.getItemCount() - 1) {
                         if (currentPosition == 0) {
                             binding.tvLeftArrow.setImageTintList(ColorStateList.valueOf(ContextCompat.getColor(MainActivity.this, R.color.color_33FFFFFF)));
                         } else {
@@ -256,9 +304,7 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
 
-                    kindOfAdapter.submitList(newKindOfFoodList, () -> {
-                        viewModel.updateSelectedKindOfFood(currentPosition, newKindOfFoodList.get(currentPosition).getFoodImageResource());
-                    });
+                    kindOfFoodAdapter.submitList(newKindOfFoodList, () -> initializeTimer());
                 }
             }
         });
@@ -346,6 +392,19 @@ public class MainActivity extends AppCompatActivity {
         animator.start();
     }
 
+    private void initializeTimer() {
+        RecyclerView.Adapter adapter = binding.rvKindOfFood.getAdapter();
+        if (adapter instanceof KindOfFoodAdapter) {
+            KindOfFoodAdapter kindOfFoodAdapter = (KindOfFoodAdapter) adapter;
+            int currentPosition = getCurrentKindOfFoodPosition();
+            if (currentPosition != -1 && kindOfFoodAdapter.getCurrentList().size() > 0) {
+                viewModel.stopTimer();
+                setTimerStartButton(false);
+                viewModel.updateSelectedKindOfFood(currentPosition, kindOfFoodAdapter.getCurrentList().get(currentPosition).getFoodImageResource());
+            }
+        }
+    }
+
     public void onClickShowBottomSheet() {
         boolean isShow = binding.clBottomSheet.getHeight() == 0 || binding.clBottomSheet.getVisibility() == View.INVISIBLE || binding.clBottomSheet.getVisibility() == View.GONE;
         int beforeHeight;
@@ -359,6 +418,10 @@ public class MainActivity extends AppCompatActivity {
         }
 
         animateBottomSheetHeight(isShow, beforeHeight, afterHeight);
+    }
+
+    public void onClickSetting() {
+        startActivity(new Intent(MainActivity.this, SettingActivity.class));
     }
 
     public void onClickKindOfFoodArrow(boolean isLeft) {
@@ -427,14 +490,7 @@ public class MainActivity extends AppCompatActivity {
                 layoutTwoButtonDialogBinding.tvTitle.setText(getString(R.string.timer_cancel_title));
                 layoutTwoButtonDialogBinding.tvContent.setText(getString(R.string.timer_cancel_content));
                 layoutTwoButtonDialogBinding.tvNegative.setOnClickListener(v -> {
-                    RecyclerView.Adapter adapter = binding.rvKindOfFood.getAdapter();
-                    if (adapter instanceof KindOfFoodAdapter) {
-                        KindOfFoodAdapter kindOfFoodAdapter = (KindOfFoodAdapter) adapter;
-                        int currentPosition = getCurrentKindOfFoodPosition();
-                        viewModel.updateSelectedKindOfFood(currentPosition, kindOfFoodAdapter.getCurrentList().get(currentPosition).getFoodImageResource());
-                        viewModel.stopTimer();
-                        setTimerStartButton(false);
-                    }
+                    initializeTimer();
                     alertDialog.dismiss();
                 });
                 layoutTwoButtonDialogBinding.tvPositive.setOnClickListener(v -> {
@@ -487,6 +543,12 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
+        boolean isShowBottomSheet = binding.clBottomSheet.getHeight() != 0 || binding.clBottomSheet.getVisibility() == View.VISIBLE;
+        if (isShowBottomSheet) {
+            animateBottomSheetHeight(false, bottomSheetHeight, 0);
+            return;
+        }
+
         if (!binding.tvStart.getText().equals(getString(R.string.start))) {
             LayoutTwoButtonDialogBinding layoutTwoButtonDialogBinding = LayoutTwoButtonDialogBinding.inflate(LayoutInflater.from(MainActivity.this));
             if (alertDialog != null) {
@@ -500,14 +562,7 @@ public class MainActivity extends AppCompatActivity {
             layoutTwoButtonDialogBinding.tvNegative.setText(getString(R.string.cancel));
             layoutTwoButtonDialogBinding.tvPositive.setText(getString(R.string.continue1));
             layoutTwoButtonDialogBinding.tvNegative.setOnClickListener(v -> {
-                RecyclerView.Adapter adapter = binding.rvKindOfFood.getAdapter();
-                if (adapter instanceof KindOfFoodAdapter) {
-                    KindOfFoodAdapter kindOfFoodAdapter = (KindOfFoodAdapter) adapter;
-                    int currentPosition = getCurrentKindOfFoodPosition();
-                    viewModel.updateSelectedKindOfFood(currentPosition, kindOfFoodAdapter.getCurrentList().get(currentPosition).getFoodImageResource());
-                    viewModel.stopTimer();
-                    setTimerStartButton(false);
-                }
+                initializeTimer();
                 alertDialog.dismiss();
             });
             layoutTwoButtonDialogBinding.tvPositive.setOnClickListener(v -> {

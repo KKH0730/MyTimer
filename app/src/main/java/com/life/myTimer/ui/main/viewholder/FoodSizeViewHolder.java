@@ -1,5 +1,11 @@
 package com.life.myTimer.ui.main.viewholder;
 
+import static androidx.appcompat.widget.LinearLayoutCompat.*;
+
+import android.util.Log;
+
+import androidx.appcompat.widget.LinearLayoutCompat;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -28,9 +34,9 @@ public class FoodSizeViewHolder extends RecyclerView.ViewHolder {
     private void startObserve() {
         viewModel.selectedFoodSizeIndex.observe(lifecycleOwner, index -> {
             if (getAdapterPosition() == index) {
-                binding.mcvSize.setCardBackgroundColor(binding.getRoot().getContext().getColor(R.color.color_283964));
+                binding.tvSize.setBackgroundResource(R.drawable.circle_solid_283964);
             } else {
-                binding.mcvSize.setCardBackgroundColor(binding.getRoot().getContext().getColor(R.color.color_CBCBCB));
+                binding.tvSize.setBackgroundResource(R.drawable.circle_solid_cbcbcb);
             }
         });
     }
@@ -42,5 +48,16 @@ public class FoodSizeViewHolder extends RecyclerView.ViewHolder {
 
         startObserve();
         binding.tvSize.setText(size);
+        binding.tvSize.post(() -> {
+            int tvWidth = binding.tvSize.getMeasuredWidth();
+            int tvHeight = binding.tvSize.getMeasuredHeight();
+
+            if (tvWidth < tvHeight) {
+                LinearLayoutCompat.LayoutParams layoutParams = (LinearLayoutCompat.LayoutParams) binding.tvSize.getLayoutParams();
+                layoutParams.width  = tvHeight;
+                binding.tvSize.setLayoutParams(layoutParams);
+            }
+        });
+
     }
 }

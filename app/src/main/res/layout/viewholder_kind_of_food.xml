@@ -12,14 +12,17 @@
         android:layout_height="wrap_content">
 
         <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tvKindOfFood"
             android:layout_width="wrap_content"
             android:layout_height="36dp"
             android:textColor="@{data.isSelect ? @color/white : @color/color_CBCBCB}"
             android:textSize="@{data.isSelect ? @dimen/dp_24 : @dimen/dp_16}"
             android:text="@{data.kindOfFood.name}"
+            android:textStyle="normal"
             android:gravity="center"
             android:paddingHorizontal="16dp"
             android:background="@{data.isSelect ? @drawable/bg_16_dp_rounding_4466de_solid : null}"
+            android:includeFontPadding="false"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"

@@ -1,5 +1,6 @@
 package com.life.myTimer.ui.main.viewholder;
 
+
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.life.myTimer.databinding.ViewholderKindOfFoodBinding;
