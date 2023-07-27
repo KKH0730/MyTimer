@@ -207,7 +207,6 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 vibrate();
             }
-            viewModel.pauseTimer();
 
             LayoutOneButtonDialogBinding layoutOneButtonDialogBinding = LayoutOneButtonDialogBinding.inflate(LayoutInflater.from(MainActivity.this));
             alertDialog = showAlertDialog(layoutOneButtonDialogBinding.getRoot());
@@ -240,10 +239,9 @@ public class MainActivity extends AppCompatActivity {
                 if (isRunningTimer()) {
                     blockTimer = false;
 
-                    int time = viewModel.getTime();
                     int flipTime = -1;
                     if (viewModel.getSelectedSubject().getName().equals(Subject.STAKE.getName())) {
-                        flipTime = time / 2;
+                        flipTime = viewModel.getStakeFlipTime();
                     }
                     Data inputData = new Data.Builder()
                             .putInt("time", viewModel.getTime())

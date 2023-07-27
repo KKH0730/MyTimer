@@ -245,7 +245,7 @@ public class MainViewModel extends ViewModel {
         return teaTimes[selectedKindOfFoodIndex];
     }
 
-    private int getStakeFlipTime() {
+    public int getStakeFlipTime() {
         return getStakeTime() / 2;
     }
 
@@ -290,8 +290,8 @@ public class MainViewModel extends ViewModel {
                             _time.postValue(time - 1);
 
                             if (finalIsNeedRinging && time - 1 == ringingTime) {
-                                Log.e("kkhdev", "time : " + time + ", ringingTime : " +ringingTime);
                                 _ringSongForFlipStake.postValue(new Object());
+                                pauseTimer();
                             }
 
                             if (time <= 0) {
@@ -306,7 +306,7 @@ public class MainViewModel extends ViewModel {
                 }
             };
 
-            timer.schedule(timerTask, 0, 1000);
+            timer.schedule(timerTask, 1000, 1000);
         }
     }
 

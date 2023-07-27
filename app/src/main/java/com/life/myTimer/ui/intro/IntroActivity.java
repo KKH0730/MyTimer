@@ -3,11 +3,17 @@ package com.life.myTimer.ui.intro;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.provider.Settings;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -31,15 +37,23 @@ public class IntroActivity extends AppCompatActivity {
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_intro);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            checkPermission();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            if (!Settings.canDrawOverlays(this)) {
+                new Handler(Looper.getMainLooper()).postDelayed(this::reqOverlayPermission, 500);
+            } else {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    checkNotificationPermission();
+                } else {
+                    new Handler(Looper.getMainLooper()).postDelayed(this::navigateToMain, 2000);
+                }
+            }
         } else {
             new Handler(Looper.getMainLooper()).postDelayed(this::navigateToMain, 2000);
         }
     }
 
     @RequiresApi(api = android.os.Build.VERSION_CODES.TIRAMISU)
-    private void checkPermission() {
+    private void checkNotificationPermission() {
         if (ContextCompat.checkSelfPermission(IntroActivity.this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(
                     this,
@@ -51,6 +65,11 @@ public class IntroActivity extends AppCompatActivity {
         }
     }
 
+    private void reqOverlayPermission() {
+        Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:"+getPackageName()));
+        launcher.launch(intent);
+    }
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -59,6 +78,17 @@ public class IntroActivity extends AppCompatActivity {
             navigateToMain();
         }
     }
+
+    ActivityResultLauncher<Intent> launcher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
+        @Override
+        public void onActivityResult(ActivityResult result) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                checkNotificationPermission();
+            } else {
+                navigateToMain();
+            }
+        }
+    });
 
     private void navigateToMain() {
         startActivity(new Intent(this, MainActivity.class));
