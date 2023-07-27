@@ -1,13 +1,14 @@
 package com.life.myTimer.ui;
 
 import android.annotation.SuppressLint;
+import android.app.AlarmManager;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.media.RingtoneManager;
-import android.util.Log;
+import android.os.SystemClock;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
@@ -36,8 +37,9 @@ public class TimerWorkManager extends Worker {
     public Result doWork() {
         Data inputData = getInputData();
         int time = inputData.getInt("time", -1);
+        int flipTime = inputData.getInt("flipTime", - 1);
         if (time != -1) {
-            createNotificationBuilder(time);
+            createNotificationBuilder(time, flipTime);
         }
         return new Result.Success();
     }
@@ -58,7 +60,7 @@ public class TimerWorkManager extends Worker {
     private Timer notiTimer = new Timer();
 
     @SuppressLint("DefaultLocale")
-    private void createNotificationBuilder(int time) {
+    private void createNotificationBuilder(int time, int flipTime) {
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
         int currentTime = (int) (System.currentTimeMillis() / 1000);
@@ -71,7 +73,10 @@ public class TimerWorkManager extends Worker {
             notificationManager.createNotificationChannel(createNotificationChannel());
 
             Intent intent = new Intent(context, MainActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+            PendingIntent pendingIntent = PendingIntent.getActivity(context, currentTime, intent, PendingIntent.FLAG_IMMUTABLE);
 
             builder = new NotificationCompat.Builder(context, CHANNEL_ID)
                     .setSmallIcon(R.mipmap.ic_launcher_round)
@@ -79,9 +84,10 @@ public class TimerWorkManager extends Worker {
                     .setContentTitle(context.getString(R.string.app_name))
                     .setContentText(String.format("%02d : %02d", minute, second))
                     .setAutoCancel(true)
+                    .setSilent(true)
                     .setPriority(NotificationCompat.PRIORITY_LOW)
                     .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
-                    .setContentIntent(PendingIntent.getActivity(context, currentTime, intent, PendingIntent.FLAG_IMMUTABLE));
+                    .setContentIntent(pendingIntent);
 
             builder.setContentText(String.format("%02d : %02d", minute, second));
 
@@ -99,11 +105,25 @@ public class TimerWorkManager extends Worker {
                     }
                     if (timerTime[0] == 0) {
                         builder.setContentText(String.format("%02d : %02d", 0, 0));
+                        try {
+                            pendingIntent.send();
+                        } catch (PendingIntent.CanceledException e) {
+                            throw new RuntimeException(e);
+                        }
+
                         this.cancel();
                         notiTimer.cancel();
                         return;
                     } else {
                         timerTime[0] -= 1;
+
+                        if (flipTime != -1 && flipTime == timerTime[0]) {
+                            try {
+                                pendingIntent.send();
+                            } catch (PendingIntent.CanceledException e) {
+                                throw new RuntimeException(e);
+                            }
+                        }
 
                         int updatedMinute = timerTime[0] / 60;
                         int updatedSecond = timerTime[0] % 60;
@@ -118,6 +138,20 @@ public class TimerWorkManager extends Worker {
 
     @SuppressLint("NewApi")
     private NotificationChannel createNotificationChannel() {
-        return new NotificationChannel(CHANNEL_ID, context.getString(R.string.app_name), NotificationManager.IMPORTANCE_DEFAULT);
+        return new NotificationChannel(CHANNEL_ID, context.getString(R.string.app_name), NotificationManager.IMPORTANCE_HIGH);
+    }
+
+    private void scheduleAppStart(int awakeTime) {
+        // 10초 후 앱을 실행할 PendingIntent를 생성합니다.
+        Intent intent = new Intent(context, MainActivity.class);
+        PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_IMMUTABLE);
+
+        // AlarmManager를 사용하여 10초 후에 PendingIntent를 실행합니다.
+        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        if (alarmManager != null) {
+
+            long triggerTime = SystemClock.elapsedRealtime() + awakeTime * 1000L; // 10초를 밀리초로 변환
+            alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, triggerTime, pendingIntent);
+        }
     }
 }

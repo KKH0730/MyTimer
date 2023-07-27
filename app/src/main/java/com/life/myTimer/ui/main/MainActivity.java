@@ -3,9 +3,7 @@ package com.life.myTimer.ui.main;
 import android.animation.Animator;
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
-import android.app.NotificationChannel;
 import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.ColorStateList;
@@ -20,17 +18,15 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
+import android.view.WindowManager;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.NotificationCompat;
-import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.ContextCompat;
 import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.ViewModelProvider;
@@ -41,7 +37,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SnapHelper;
 import androidx.work.Data;
 import androidx.work.OneTimeWorkRequest;
-import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
 import androidx.work.WorkRequest;
 
@@ -244,8 +239,15 @@ public class MainActivity extends AppCompatActivity {
             public void onBackgroundDetected() {
                 if (isRunningTimer()) {
                     blockTimer = false;
+
+                    int time = viewModel.getTime();
+                    int flipTime = -1;
+                    if (viewModel.getSelectedSubject().getName().equals(Subject.STAKE.getName())) {
+                        flipTime = time / 2;
+                    }
                     Data inputData = new Data.Builder()
                             .putInt("time", viewModel.getTime())
+                            .putInt("flipTime", flipTime)
                             .build();
                     WorkRequest timerWorkRequest = new OneTimeWorkRequest.Builder(TimerWorkManager.class)
                             .setInputData(inputData)
@@ -444,7 +446,16 @@ public class MainActivity extends AppCompatActivity {
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.show();
+
+        WindowManager.LayoutParams params = dialog.getWindow().getAttributes();
+        params.width = dpToPx(304);
+        dialog.getWindow().setAttributes(params);
         return dialog;
+    }
+
+    public int dpToPx(int dp) {
+        float density = App.getInstance().getResources().getDisplayMetrics().density;
+        return Math.round((float) dp * density);
     }
 
     private View showTimerCancelAlertDialog() {
@@ -712,6 +723,13 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
+        blockTimer = true;
+        WorkManager.getInstance(MainActivity.this).cancelAllWork();
+        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        if (notificationManager != null) {
+            notificationManager.cancel(Constants.NOTICIATION_ID);
+        }
+
         if (alertDialog != null) {
             alertDialog.dismiss();
             alertDialog = null;
