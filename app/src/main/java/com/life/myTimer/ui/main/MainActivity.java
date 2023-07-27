@@ -3,9 +3,7 @@ package com.life.myTimer.ui.main;
 import android.animation.Animator;
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.content.res.ColorStateList;
-import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
@@ -34,9 +32,9 @@ import com.life.myTimer.R;
 import com.life.myTimer.databinding.ActivityMainBinding;
 import com.life.myTimer.databinding.LayoutOneButtonDialogBinding;
 import com.life.myTimer.databinding.LayoutTwoButtonDialogBinding;
+import com.life.myTimer.ui.main.adapter.FoodSizeAdapter;
 import com.life.myTimer.ui.main.adapter.KindOfFoodAdapter;
 import com.life.myTimer.ui.main.model.KindOfFood;
-import com.life.myTimer.ui.main.adapter.FoodSizeAdapter;
 import com.life.myTimer.ui.main.model.Subject;
 import com.life.myTimer.utils.DimensionUtils;
 
@@ -85,7 +83,7 @@ public class MainActivity extends AppCompatActivity {
                 binding.ivSettingGuideBubble.setVisibility(View.VISIBLE);
                 binding.ivArrow.setVisibility(View.VISIBLE);
                 binding.ivFood.setImageResource(R.drawable.img_stake_blue_rare);
-            } else if (subject.getName().equals(Subject.TEA.getName())){
+            } else if (subject.getName().equals(Subject.TEA.getName())) {
                 boolean isShow = binding.clBottomSheet.getHeight() == 0 || binding.clBottomSheet.getVisibility() == View.INVISIBLE || binding.clBottomSheet.getVisibility() == View.GONE;
                 if (!isShow) {
                     onClickShowBottomSheet();
@@ -137,7 +135,6 @@ public class MainActivity extends AppCompatActivity {
                     }
                     LayoutOneButtonDialogBinding layoutOneButtonDialogBinding = LayoutOneButtonDialogBinding.inflate(LayoutInflater.from(MainActivity.this));
                     alertDialog = showAlertDialog(layoutOneButtonDialogBinding.getRoot());
-                    alertDialog.show();
 
                     layoutOneButtonDialogBinding.tvTitle.setText(getString(R.string.timer_complete_title));
                     layoutOneButtonDialogBinding.tvContent.setText(getString(R.string.timer_complete_content));
@@ -173,7 +170,6 @@ public class MainActivity extends AppCompatActivity {
 
             LayoutOneButtonDialogBinding layoutOneButtonDialogBinding = LayoutOneButtonDialogBinding.inflate(LayoutInflater.from(MainActivity.this));
             alertDialog = showAlertDialog(layoutOneButtonDialogBinding.getRoot());
-            alertDialog.show();
 
             layoutOneButtonDialogBinding.tvTitle.setText(getString(R.string.timer_stake_flip_title));
             layoutOneButtonDialogBinding.tvContent.setText(getString(R.string.timer_stake_flip_content));
@@ -252,7 +248,7 @@ public class MainActivity extends AppCompatActivity {
 
                     List<KindOfFood> kindOfFoodList = ((KindOfFoodAdapter) adapter).getCurrentList();
                     List<KindOfFood> newKindOfFoodList = new ArrayList<>();
-                    for (int i = 0; i < kindOfFoodList.size(); i ++) {
+                    for (int i = 0; i < kindOfFoodList.size(); i++) {
                         if (currentPosition == i) {
                             newKindOfFoodList.add(new KindOfFood(kindOfFoodList.get(i).getKindOfFood(), kindOfFoodList.get(i).getFoodImageResource(), true));
                         } else {
@@ -333,7 +329,7 @@ public class MainActivity extends AppCompatActivity {
                     binding.ivArrow.setVisibility(View.INVISIBLE);
                     binding.clBottomSheet.setVisibility(View.VISIBLE);
 
-                    new Handler(Looper.getMainLooper()).postDelayed(() -> binding.flBottomSheetTouchGuard.setVisibility(View.VISIBLE),  100);
+                    new Handler(Looper.getMainLooper()).postDelayed(() -> binding.flBottomSheetTouchGuard.setVisibility(View.VISIBLE), 100);
                 }
             }
 
@@ -405,9 +401,7 @@ public class MainActivity extends AppCompatActivity {
             if (alertDialog != null) {
                 alertDialog.dismiss();
             }
-
             alertDialog = showAlertDialog(layoutTwoButtonDialogBinding.getRoot());
-            alertDialog.show();
 
             layoutTwoButtonDialogBinding.tvNegative.setText(getString(R.string.cancel));
             layoutTwoButtonDialogBinding.tvPositive.setText(getString(R.string.continue1));
@@ -459,6 +453,7 @@ public class MainActivity extends AppCompatActivity {
         dialog.setCancelable(false);
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.show();
         return dialog;
     }
 
@@ -487,6 +482,40 @@ public class MainActivity extends AppCompatActivity {
         // 벨소리 중지
         if (ringtone != null && ringtone.isPlaying()) {
             ringtone.stop();
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (!binding.tvStart.getText().equals(getString(R.string.start))) {
+            LayoutTwoButtonDialogBinding layoutTwoButtonDialogBinding = LayoutTwoButtonDialogBinding.inflate(LayoutInflater.from(MainActivity.this));
+            if (alertDialog != null) {
+                alertDialog.dismiss();
+            }
+            alertDialog = showAlertDialog(layoutTwoButtonDialogBinding.getRoot());
+            viewModel.pauseTimer();
+
+            layoutTwoButtonDialogBinding.tvTitle.setText(getString(R.string.timer_cancel_title));
+            layoutTwoButtonDialogBinding.tvContent.setText(getString(R.string.timer_cancel_content));
+            layoutTwoButtonDialogBinding.tvNegative.setText(getString(R.string.cancel));
+            layoutTwoButtonDialogBinding.tvPositive.setText(getString(R.string.continue1));
+            layoutTwoButtonDialogBinding.tvNegative.setOnClickListener(v -> {
+                RecyclerView.Adapter adapter = binding.rvKindOfFood.getAdapter();
+                if (adapter instanceof KindOfFoodAdapter) {
+                    KindOfFoodAdapter kindOfFoodAdapter = (KindOfFoodAdapter) adapter;
+                    int currentPosition = getCurrentKindOfFoodPosition();
+                    viewModel.updateSelectedKindOfFood(currentPosition, kindOfFoodAdapter.getCurrentList().get(currentPosition).getFoodImageResource());
+                    viewModel.stopTimer();
+                    setTimerStartButton(false);
+                }
+                alertDialog.dismiss();
+            });
+            layoutTwoButtonDialogBinding.tvPositive.setOnClickListener(v -> {
+                viewModel.startTimer(true);
+                alertDialog.dismiss();
+            });
+        } else {
+            finish();
         }
     }
 
