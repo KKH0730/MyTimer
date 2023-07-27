@@ -59,11 +59,6 @@ import com.life.myTimer.utils.DimensionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends AppCompatActivity {
     private ActivityMainBinding binding;
@@ -149,7 +144,25 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        viewModel.selectedFoodSizeIndex.observe(this, index -> initializeTimer());
+        viewModel.clickSelectedFoodSize.observe(this, index -> {
+            if (isRunningTimer()) {
+                View view = showTimerCancelAlertDialog();
+                view.findViewById(R.id.tvNegative).setOnClickListener(v -> {
+                    initializeTimer();
+                    viewModel.updateSelectedFoodSizePosition(index);
+                    alertDialog.dismiss();
+                });
+
+                view.findViewById(R.id.tvPositive).setOnClickListener(v -> {
+                    viewModel.startTimer(true);
+                    alertDialog.dismiss();
+                });
+            } else {
+                initializeTimer();
+                viewModel.updateSelectedFoodSizePosition(index);
+            }
+        });
+
 
         viewModel.time.observe(this, time -> {
             if (time == 0) {
@@ -215,7 +228,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onBackgroundDetected() {
-                if (!binding.tvStart.getText().equals(getString(R.string.start))) {
+                if (isRunningTimer()) {
                     blockTimer = false;
                     Data inputData = new Data.Builder()
                             .putInt("time", viewModel.getTime())
@@ -405,6 +418,136 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private AlertDialog showAlertDialog(View view) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+        builder.setView(view);
+
+        AlertDialog dialog = builder.create();
+        dialog.setCancelable(false);
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.show();
+        return dialog;
+    }
+
+    private View showTimerCancelAlertDialog() {
+        LayoutTwoButtonDialogBinding layoutTwoButtonDialogBinding = LayoutTwoButtonDialogBinding.inflate(LayoutInflater.from(MainActivity.this));
+        if (alertDialog != null) {
+            alertDialog.dismiss();
+        }
+        alertDialog = showAlertDialog(layoutTwoButtonDialogBinding.getRoot());
+        viewModel.pauseTimer();
+
+        layoutTwoButtonDialogBinding.tvTitle.setText(getString(R.string.timer_cancel_title));
+        layoutTwoButtonDialogBinding.tvContent.setText(getString(R.string.timer_cancel_content));
+        layoutTwoButtonDialogBinding.tvNegative.setText(getString(R.string.cancel));
+        layoutTwoButtonDialogBinding.tvPositive.setText(getString(R.string.continue1));
+        layoutTwoButtonDialogBinding.tvNegative.setOnClickListener(v -> {
+            initializeTimer();
+            alertDialog.dismiss();
+        });
+        layoutTwoButtonDialogBinding.tvPositive.setOnClickListener(v -> {
+            viewModel.startTimer(true);
+            alertDialog.dismiss();
+        });
+        return layoutTwoButtonDialogBinding.getRoot();
+    }
+
+    private void setTimerStartButton(boolean isTimerStart) {
+        if (isTimerStart) {
+            binding.tvStart.setText(getString(R.string.stop));
+            binding.tvStart.setBackgroundColor(getColor(R.color.color_F23C23));
+            binding.tvStart.setTextColor(getColor(R.color.white));
+        } else {
+            binding.tvStart.setText(getString(R.string.start));
+            binding.tvStart.setBackgroundColor(getColor(R.color.color_FFFFDB1E));
+            binding.tvStart.setTextColor(getColor(R.color.color_283964));
+        }
+    }
+
+    private void playRingtone() {
+        Uri ringtoneUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
+
+        ringtone = RingtoneManager.getRingtone(this, ringtoneUri);
+        if (ringtone != null) {
+            ringtone.play();
+        }
+    }
+
+    private void stopRingtone() {
+        // 벨소리 중지
+        if (ringtone != null && ringtone.isPlaying()) {
+            ringtone.stop();
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        boolean isShowBottomSheet = binding.clBottomSheet.getHeight() != 0 || binding.clBottomSheet.getVisibility() == View.VISIBLE;
+        if (isShowBottomSheet) {
+            animateBottomSheetHeight(false, bottomSheetHeight, 0);
+            return;
+        }
+
+        if (isRunningTimer()) {
+            View view = showTimerCancelAlertDialog();
+            view.findViewById(R.id.tvNegative).setOnClickListener(v -> {
+                initializeTimer();
+                alertDialog.dismiss();
+            });
+            view.findViewById(R.id.tvPositive).setOnClickListener(v -> {
+                viewModel.startTimer(true);
+                alertDialog.dismiss();
+            });
+        } else {
+            initializeTimer();
+            finish();
+        }
+    }
+
+    private boolean isRunningTimer() {
+        return !binding.tvStart.getText().equals(getString(R.string.start));
+    }
+
+    public void onClickSubject(Subject subject) {
+        if (!viewModel.getSelectedSubject().getName().equals(subject.getName())) {
+            if (isRunningTimer()) {
+                View view = showTimerCancelAlertDialog();
+                view.findViewById(R.id.tvNegative).setOnClickListener(v -> {
+                    viewModel.updateSelectedSubject(subject);
+                    initializeTimer();
+                    alertDialog.dismiss();
+                });
+
+                view.findViewById(R.id.tvPositive).setOnClickListener(v -> {
+                    viewModel.startTimer(true);
+                    alertDialog.dismiss();
+                });
+            } else {
+                viewModel.updateSelectedSubject(subject);
+                initializeTimer();
+            }
+        }
+    }
+    public void onClickCold(boolean isColdFood) {
+        if (isRunningTimer()) {
+            View view = showTimerCancelAlertDialog();
+            view.findViewById(R.id.tvNegative).setOnClickListener(v -> {
+                viewModel.updateColdFood(isColdFood);
+                initializeTimer();
+                alertDialog.dismiss();
+            });
+
+            view.findViewById(R.id.tvPositive).setOnClickListener(v -> {
+                viewModel.startTimer(true);
+                alertDialog.dismiss();
+            });
+        } else {
+            viewModel.updateColdFood(isColdFood);
+            initializeTimer();
+        }
+    }
+
     public void onClickShowBottomSheet() {
         boolean isShow = binding.clBottomSheet.getHeight() == 0 || binding.clBottomSheet.getVisibility() == View.INVISIBLE || binding.clBottomSheet.getVisibility() == View.GONE;
         int beforeHeight;
@@ -443,14 +586,29 @@ public class MainActivity extends AppCompatActivity {
 
         RecyclerView.LayoutManager layoutManager = binding.rvKindOfFood.getLayoutManager();
         if (layoutManager instanceof LinearLayoutManager) {
-            View view = layoutManager.findViewByPosition(targetPosition);
+            View targetView = layoutManager.findViewByPosition(targetPosition);
 
-            if (view != null) {
-                int[] snapDistance = snapHelper.calculateDistanceToFinalSnap(binding.rvKindOfFood.getLayoutManager(), view);
+            if (targetView != null) {
+                int[] snapDistance = snapHelper.calculateDistanceToFinalSnap(binding.rvKindOfFood.getLayoutManager(), targetView);
 
                 if (snapDistance != null) {
                     if (snapDistance[0] != 0 || snapDistance[1] != 0) {
-                        binding.rvKindOfFood.smoothScrollBy(snapDistance[0], snapDistance[1], null, 500);
+                        if (isRunningTimer()) {
+                            View view = showTimerCancelAlertDialog();
+                            view.findViewById(R.id.tvNegative).setOnClickListener(v -> {
+                                binding.rvKindOfFood.smoothScrollBy(snapDistance[0], snapDistance[1], null, 500);
+                                initializeTimer();
+                                alertDialog.dismiss();
+                            });
+
+                            view.findViewById(R.id.tvPositive).setOnClickListener(v -> {
+                                viewModel.startTimer(true);
+                                alertDialog.dismiss();
+                            });
+                        } else {
+                            initializeTimer();
+                            binding.rvKindOfFood.smoothScrollBy(snapDistance[0], snapDistance[1], null, 500);
+                        }
                     }
                 }
             }
@@ -498,79 +656,6 @@ public class MainActivity extends AppCompatActivity {
                     alertDialog.dismiss();
                 });
             }
-        }
-    }
-
-    private AlertDialog showAlertDialog(View view) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-        builder.setView(view);
-
-        AlertDialog dialog = builder.create();
-        dialog.setCancelable(false);
-        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        dialog.show();
-        return dialog;
-    }
-
-    private void setTimerStartButton(boolean isTimerStart) {
-        if (isTimerStart) {
-            binding.tvStart.setText(getString(R.string.stop));
-            binding.tvStart.setBackgroundColor(getColor(R.color.color_F23C23));
-            binding.tvStart.setTextColor(getColor(R.color.white));
-        } else {
-            binding.tvStart.setText(getString(R.string.start));
-            binding.tvStart.setBackgroundColor(getColor(R.color.color_FFFFDB1E));
-            binding.tvStart.setTextColor(getColor(R.color.color_283964));
-        }
-    }
-
-    private void playRingtone() {
-        Uri ringtoneUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
-
-        ringtone = RingtoneManager.getRingtone(this, ringtoneUri);
-        if (ringtone != null) {
-            ringtone.play();
-        }
-    }
-
-    private void stopRingtone() {
-        // 벨소리 중지
-        if (ringtone != null && ringtone.isPlaying()) {
-            ringtone.stop();
-        }
-    }
-
-    @Override
-    public void onBackPressed() {
-        boolean isShowBottomSheet = binding.clBottomSheet.getHeight() != 0 || binding.clBottomSheet.getVisibility() == View.VISIBLE;
-        if (isShowBottomSheet) {
-            animateBottomSheetHeight(false, bottomSheetHeight, 0);
-            return;
-        }
-
-        if (!binding.tvStart.getText().equals(getString(R.string.start))) {
-            LayoutTwoButtonDialogBinding layoutTwoButtonDialogBinding = LayoutTwoButtonDialogBinding.inflate(LayoutInflater.from(MainActivity.this));
-            if (alertDialog != null) {
-                alertDialog.dismiss();
-            }
-            alertDialog = showAlertDialog(layoutTwoButtonDialogBinding.getRoot());
-            viewModel.pauseTimer();
-
-            layoutTwoButtonDialogBinding.tvTitle.setText(getString(R.string.timer_cancel_title));
-            layoutTwoButtonDialogBinding.tvContent.setText(getString(R.string.timer_cancel_content));
-            layoutTwoButtonDialogBinding.tvNegative.setText(getString(R.string.cancel));
-            layoutTwoButtonDialogBinding.tvPositive.setText(getString(R.string.continue1));
-            layoutTwoButtonDialogBinding.tvNegative.setOnClickListener(v -> {
-                initializeTimer();
-                alertDialog.dismiss();
-            });
-            layoutTwoButtonDialogBinding.tvPositive.setOnClickListener(v -> {
-                viewModel.startTimer(true);
-                alertDialog.dismiss();
-            });
-        } else {
-            finish();
         }
     }
 

@@ -54,7 +54,7 @@ public class FoodSizeViewHolder extends RecyclerView.ViewHolder {
 
             if (tvWidth < tvHeight) {
                 LinearLayoutCompat.LayoutParams layoutParams = (LinearLayoutCompat.LayoutParams) binding.tvSize.getLayoutParams();
-                layoutParams.width  = tvHeight;
+                layoutParams.width = tvHeight;
                 binding.tvSize.setLayoutParams(layoutParams);
             }
         });

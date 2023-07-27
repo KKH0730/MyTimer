@@ -62,6 +62,10 @@ public class MainViewModel extends ViewModel {
     private MutableLiveData<List<String>> _foodSizeList = new MutableLiveData<>(Arrays.asList(eggSizes));
     public LiveData<List<String>> foodSizeList = _foodSizeList;
 
+
+    private MutableLiveData<Integer> _clickSelectedFoodSize = new MutableLiveData<>(0);
+    public LiveData<Integer> clickSelectedFoodSize = _clickSelectedFoodSize;
+
     private MutableLiveData<Integer> _selectedFoodSizeIndex = new MutableLiveData<>(0);
     public LiveData<Integer> selectedFoodSizeIndex = _selectedFoodSizeIndex;
 
@@ -124,6 +128,10 @@ public class MainViewModel extends ViewModel {
         _foodSizeList.setValue(foodSizeList);
     }
 
+
+    public void onClickSelectedFoodSizePosition(int index) {
+        _clickSelectedFoodSize.setValue(index);
+    }
     public void updateSelectedFoodSizePosition(int index) {
         _selectedFoodSizeIndex.setValue(index);
         setupTimer();

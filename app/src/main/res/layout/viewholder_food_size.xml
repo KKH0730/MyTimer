@@ -39,7 +39,7 @@
             android:textColor="@color/white"
             android:padding="6dp"
             android:gravity="center"
-            android:onClick="@{() -> viewModel.updateSelectedFoodSizePosition(position)}"
+            android:onClick="@{() -> viewModel.onClickSelectedFoodSizePosition(position)}"
             tools:text="L"/>
     </androidx.appcompat.widget.LinearLayoutCompat>
 </layout>

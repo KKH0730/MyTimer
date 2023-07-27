@@ -37,7 +37,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:onClick="@{() -> viewModel.updateSelectedSubject(Subject.EGG)}">
+                android:onClick="@{() -> activity.onClickSubject(Subject.EGG)}">
 
                 <androidx.appcompat.widget.AppCompatImageView
                     android:id="@+id/ivTabEgg"
@@ -91,7 +91,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:onClick="@{() -> viewModel.updateSelectedSubject(Subject.STAKE)}">
+                android:onClick="@{() -> activity.onClickSubject(Subject.STAKE)}">
 
                 <androidx.appcompat.widget.AppCompatImageView
                     android:id="@+id/ivTabStake"
@@ -145,7 +145,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:onClick="@{() -> viewModel.updateSelectedSubject(Subject.TEA)}">
+                android:onClick="@{() -> activity.onClickSubject(Subject.TEA)}">
 
                 <androidx.appcompat.widget.AppCompatImageView
                     android:id="@+id/ivTabTea"
@@ -359,7 +359,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:background="@color/color_4466DE"
-                    android:onClick="@{() -> viewModel.updateColdFood(true)}"
+                    android:onClick="@{() -> activity.onClickCold(true)}"
                     android:paddingHorizontal="33dp"
                     android:paddingVertical="8dp"
                     android:text="냉장 유"
@@ -384,7 +384,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:background="@color/color_CBCBCB"
-                    android:onClick="@{() -> viewModel.updateColdFood(false)}"
+                    android:onClick="@{() -> activity.onClickCold(false)}"
                     android:paddingHorizontal="33dp"
                     android:paddingVertical="8dp"
                     android:text="냉장 무"
