@@ -98,10 +98,12 @@ public class MainActivity extends AppCompatActivity {
 
             if (subject.getName().equals(Subject.EGG.getName())) {
                 binding.ivSettingGuideBubble.setVisibility(View.VISIBLE);
+                binding.tvStakeGuide.setVisibility(View.INVISIBLE);
                 binding.ivArrow.setVisibility(View.VISIBLE);
                 binding.ivFood.setImageResource(R.drawable.img_egg_soft_boiled);
             } else if (subject.getName().equals(Subject.STAKE.getName())) {
                 binding.ivSettingGuideBubble.setVisibility(View.VISIBLE);
+                binding.tvStakeGuide.setVisibility(View.VISIBLE);
                 binding.ivArrow.setVisibility(View.VISIBLE);
                 binding.ivFood.setImageResource(R.drawable.img_stake_blue_rare);
             } else if (subject.getName().equals(Subject.TEA.getName())) {
@@ -110,6 +112,7 @@ public class MainActivity extends AppCompatActivity {
                     onClickShowBottomSheet();
                 }
                 binding.ivSettingGuideBubble.setVisibility(View.INVISIBLE);
+                binding.tvStakeGuide.setVisibility(View.INVISIBLE);
                 binding.ivArrow.setVisibility(View.INVISIBLE);
                 binding.ivFood.setImageResource(R.drawable.img_black_tea);
             }
@@ -322,9 +325,12 @@ public class MainActivity extends AppCompatActivity {
                     List<KindOfFood> newKindOfFoodList = new ArrayList<>();
                     for (int i = 0; i < kindOfFoodList.size(); i++) {
                         if (currentPosition == i) {
-                            newKindOfFoodList.add(new KindOfFood(kindOfFoodList.get(i).getKindOfFood(), kindOfFoodList.get(i).getFoodImageResource(), true));
+                            if (kindOfFoodList.get(i).getGuideResource() != 0) {
+                                binding.tvStakeGuide.setText(getString(kindOfFoodList.get(i).getGuideResource()));
+                            }
+                            newKindOfFoodList.add(new KindOfFood(kindOfFoodList.get(i).getKindOfFood(), kindOfFoodList.get(i).getFoodImageResource(), kindOfFoodList.get(i).getGuideResource(), true));
                         } else {
-                            newKindOfFoodList.add(new KindOfFood(kindOfFoodList.get(i).getKindOfFood(), kindOfFoodList.get(i).getFoodImageResource(), false));
+                            newKindOfFoodList.add(new KindOfFood(kindOfFoodList.get(i).getKindOfFood(), kindOfFoodList.get(i).getFoodImageResource(), kindOfFoodList.get(i).getGuideResource(),false));
                         }
                     }
 

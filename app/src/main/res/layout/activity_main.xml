@@ -235,13 +235,25 @@
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_marginTop="61dp"
-            android:layout_marginBottom="17dp"
             android:src="@drawable/img_egg_soft_boiled"
             app:layout_constraintDimensionRatio="1:1"
             app:layout_constraintTop_toBottomOf="@+id/rvKindOfFood"
-            app:layout_constraintBottom_toTopOf="@+id/tvRemainTime"
+            app:layout_constraintBottom_toTopOf="@+id/tvStakeGuide"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"/>
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tvStakeGuide"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textColor="@color/color_CBCBCB"
+            android:textSize="16dp"
+            android:gravity="center"
+            android:ellipsize="end"
+            app:layout_constraintBottom_toTopOf="@+id/tvRemainTime"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            tools:text="54도로 온도를 맞춰주세요" />
 
          <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/tvRemainTime"

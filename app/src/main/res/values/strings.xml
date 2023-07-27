@@ -11,6 +11,10 @@
     <string name="stake">스테이크</string>
     <string name="tea">차</string>
 
+    <string name="blue_rare_guide">54도로 온도를 맞춰주세요</string>
+    <string name="rare_guide">57도로 온도를 맞춰주세요</string>
+    <string name="medium_guide">63도로 온도를 맞춰주세요</string>
+
     <string name="timer_complete_title">타이머 완료 알림</string>
     <string name="timer_complete_content">설정하신 타이머 완료 되었습니다</string>
 

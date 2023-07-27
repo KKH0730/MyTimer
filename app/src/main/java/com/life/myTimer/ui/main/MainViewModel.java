@@ -146,18 +146,18 @@ public class MainViewModel extends ViewModel {
         ArrayList<KindOfFood> kindOfFoodList = new ArrayList<>();
 
         if (subject.getName().equals(Subject.EGG.getName())) {
-            kindOfFoodList.add(new KindOfFood(Subject.KindOfFood.SOFT_BOILED, R.drawable.img_egg_soft_boiled, true));
-            kindOfFoodList.add(new KindOfFood(Subject.KindOfFood.MIDDLE_BOILED, R.drawable.img_egg_middle_boiled, false));
-            kindOfFoodList.add(new KindOfFood(Subject.KindOfFood.HARD_BOILED, R.drawable.img_egg_hard_boiled, false));
+            kindOfFoodList.add(new KindOfFood(Subject.KindOfFood.SOFT_BOILED, R.drawable.img_egg_soft_boiled, 0,true));
+            kindOfFoodList.add(new KindOfFood(Subject.KindOfFood.MIDDLE_BOILED, R.drawable.img_egg_middle_boiled, 0,false));
+            kindOfFoodList.add(new KindOfFood(Subject.KindOfFood.HARD_BOILED,  R.drawable.img_egg_hard_boiled, 0,false));
         } else if (subject.getName().equals(Subject.STAKE.getName())) {
-            kindOfFoodList.add(new KindOfFood(Subject.KindOfFood.BLUE_RARE, R.drawable.img_stake_blue_rare,true));
-            kindOfFoodList.add(new KindOfFood(Subject.KindOfFood.RARE, R.drawable.img_stake_rare,false));
-            kindOfFoodList.add(new KindOfFood(Subject.KindOfFood.MEDIUM, R.drawable.img_stake_medium,false));
+            kindOfFoodList.add(new KindOfFood(Subject.KindOfFood.BLUE_RARE, R.drawable.img_stake_blue_rare, R.string.blue_rare_guide, true));
+            kindOfFoodList.add(new KindOfFood(Subject.KindOfFood.RARE, R.drawable.img_stake_rare,R.string.rare_guide, false));
+            kindOfFoodList.add(new KindOfFood(Subject.KindOfFood.MEDIUM, R.drawable.img_stake_medium, R.string.medium_guide, false));
         } else {
-            kindOfFoodList.add(new KindOfFood(Subject.KindOfFood.BLACK_TEA, R.drawable.img_black_tea,true));
-            kindOfFoodList.add(new KindOfFood(Subject.KindOfFood.GREEN_TEA, R.drawable.img_green_tea,false));
-            kindOfFoodList.add(new KindOfFood(Subject.KindOfFood.HUB_TEA, R.drawable.img_hub_tea,false));
-            kindOfFoodList.add(new KindOfFood(Subject.KindOfFood.WHITE_TEA, R.drawable.img_black_tea,false));
+            kindOfFoodList.add(new KindOfFood(Subject.KindOfFood.BLACK_TEA, R.drawable.img_black_tea,0,true));
+            kindOfFoodList.add(new KindOfFood(Subject.KindOfFood.GREEN_TEA, R.drawable.img_green_tea,0,false));
+            kindOfFoodList.add(new KindOfFood(Subject.KindOfFood.HUB_TEA, R.drawable.img_hub_tea,0,false));
+            kindOfFoodList.add(new KindOfFood(Subject.KindOfFood.WHITE_TEA, R.drawable.img_black_tea,0,false));
         }
 
         _kindOfFoodList.setValue(kindOfFoodList);
