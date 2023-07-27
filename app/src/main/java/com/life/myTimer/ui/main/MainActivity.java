@@ -676,7 +676,7 @@ public class MainActivity extends AppCompatActivity {
             alertDialog = showAlertDialog(layoutTwoButtonDialogBinding.getRoot());
 
             layoutTwoButtonDialogBinding.tvNegative.setText(getString(R.string.cancel));
-            layoutTwoButtonDialogBinding.tvPositive.setText(getString(R.string.continue1));
+            layoutTwoButtonDialogBinding.tvPositive.setText(getString(R.string.start));
 
             if (binding.tvStart.getText().equals(getString(R.string.start))) {
                 layoutTwoButtonDialogBinding.tvTitle.setText(getString(R.string.timer_start_title));
