@@ -10,6 +10,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.drawable.ColorDrawable;
+import android.media.AudioManager;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
@@ -17,6 +18,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -168,7 +171,11 @@ public class MainActivity extends AppCompatActivity {
             if (time == 0) {
                 Subject subject = viewModel.getSelectedSubject();
                 if (subject != null) {
-                    playRingtone();
+                    if (isSoundMode()) {
+                        playRingtone();
+                    } else {
+                        vibrate();
+                    }
 
                     if (alertDialog != null) {
                         alertDialog.dismiss();
@@ -197,7 +204,11 @@ public class MainActivity extends AppCompatActivity {
         viewModel.foodImage.observe(this, imageRes -> binding.ivFood.setImageResource(imageRes));
 
         viewModel.ringSongForFlipStake.observe(this, object -> {
-            playRingtone();
+            if (isSoundMode()) {
+                playRingtone();
+            } else {
+                vibrate();
+            }
             viewModel.pauseTimer();
 
             LayoutOneButtonDialogBinding layoutOneButtonDialogBinding = LayoutOneButtonDialogBinding.inflate(LayoutInflater.from(MainActivity.this));
@@ -465,6 +476,37 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private boolean isSoundMode() {
+        AudioManager audioManager = (AudioManager) this.getSystemService(Context.AUDIO_SERVICE);
+
+        int ringerMode = audioManager.getRingerMode();
+
+        switch (ringerMode) {
+            case AudioManager.RINGER_MODE_SILENT:
+                return false; // 무음 모드
+            case AudioManager.RINGER_MODE_VIBRATE:
+                return false; // 진동 모드
+            default:
+                return true; // 벨소리 모드
+        }
+    }
+
+    // 1초 간격으로 진동 울리는 메서드
+    public void vibrate() {
+        long[] pattern = { 0, 2000, 1000, 2000, 1000 }; // 대기 0ms, 진동 2초, 대기 1초, 진동 2초
+        int repeat = 0;
+
+        Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+
+        // Android 10 (API 29) 이상부터는 deprecated된 vibrate() 대신 VibrationEffect를 사용
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            VibrationEffect vibrationEffect = VibrationEffect.createWaveform(pattern, repeat);
+            vibrator.vibrate(vibrationEffect);
+        } else {
+            // Android 10 미만 버전에서는 deprecated된 vibrate() 사용
+            vibrator.vibrate(pattern, repeat);
+        }
+    }
     private void playRingtone() {
         Uri ringtoneUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
 
@@ -479,6 +521,9 @@ public class MainActivity extends AppCompatActivity {
         if (ringtone != null && ringtone.isPlaying()) {
             ringtone.stop();
         }
+
+        Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+        vibrator.cancel();
     }
 
     @Override
