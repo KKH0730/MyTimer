@@ -23,9 +23,9 @@ public enum Subject {
         MIDDLE_BOILED("중숙"), // 중숙
         HARD_BOILED("완숙"), // 완숙
 
-        BLUE_RARE("블루레어"), // 블루레어
-        RARE("레어"), // 레어
-        MEDIUM("미디움"), // 미디움
+        RARE("레어"),
+        MEDIUM("미디움"),
+        WELDON("웰던"),
 
 
         BLACK_TEA("홍차"), // 홍차

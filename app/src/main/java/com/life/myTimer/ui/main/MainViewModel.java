@@ -42,14 +42,15 @@ public class MainViewModel extends ViewModel {
 
     private String[] stakeSizes = App.getInstance().getResources().getStringArray(R.array.stakeSize);
 
-    private int[] blueRareColdStakeTimes = App.getInstance().getResources().getIntArray(R.array.blueRareColdStakeTime);
-    private int[] blueRareStakeTimes = App.getInstance().getResources().getIntArray(R.array.blueRareStakeTime);
 
     private int[] rareColdStakeTimes = App.getInstance().getResources().getIntArray(R.array.rareColdStakeTime);
     private int[] rareStakeTimes = App.getInstance().getResources().getIntArray(R.array.rareStakeTime);
 
     private int[] mediumColdStakeTimes = App.getInstance().getResources().getIntArray(R.array.mediumColdStakeTime);
     private int[] mediumStakeTimes = App.getInstance().getResources().getIntArray(R.array.mediumStakeTime);
+
+    private int[] weldonColdStakeTimes = App.getInstance().getResources().getIntArray(R.array.weldonColdStakeTime);
+    private int[] weldonStakeTimes = App.getInstance().getResources().getIntArray(R.array.weldonStakeTime);
 
     private int[] teaTimes = App.getInstance().getResources().getIntArray(R.array.teaTime);
 
@@ -150,9 +151,9 @@ public class MainViewModel extends ViewModel {
             kindOfFoodList.add(new KindOfFood(Subject.KindOfFood.MIDDLE_BOILED, R.drawable.img_egg_middle_boiled, 0,false));
             kindOfFoodList.add(new KindOfFood(Subject.KindOfFood.HARD_BOILED,  R.drawable.img_egg_hard_boiled, 0,false));
         } else if (subject.getName().equals(Subject.STAKE.getName())) {
-            kindOfFoodList.add(new KindOfFood(Subject.KindOfFood.BLUE_RARE, R.drawable.img_stake_blue_rare, R.string.blue_rare_guide, true));
-            kindOfFoodList.add(new KindOfFood(Subject.KindOfFood.RARE, R.drawable.img_stake_rare,R.string.rare_guide, false));
-            kindOfFoodList.add(new KindOfFood(Subject.KindOfFood.MEDIUM, R.drawable.img_stake_medium, R.string.medium_guide, false));
+            kindOfFoodList.add(new KindOfFood(Subject.KindOfFood.RARE, R.drawable.img_stake_blue_rare, R.string.blue_rare_guide, true));
+            kindOfFoodList.add(new KindOfFood(Subject.KindOfFood.MEDIUM, R.drawable.img_stake_rare,R.string.rare_guide, false));
+            kindOfFoodList.add(new KindOfFood(Subject.KindOfFood.WELDON, R.drawable.img_stake_medium, R.string.medium_guide, false));
         } else {
             kindOfFoodList.add(new KindOfFood(Subject.KindOfFood.BLACK_TEA, R.drawable.img_black_tea,0,true));
             kindOfFoodList.add(new KindOfFood(Subject.KindOfFood.GREEN_TEA, R.drawable.img_green_tea,0,false));
@@ -219,23 +220,23 @@ public class MainViewModel extends ViewModel {
 
 
         int time;
-        if (kindOfFood.getKindOfFood() == Subject.KindOfFood.BLUE_RARE) {
-            if (isCold) {
-                time = blueRareColdStakeTimes[currentStakeSizeIndex];
-            } else {
-                time = blueRareStakeTimes[currentStakeSizeIndex];
-            }
-        } else if (kindOfFood.getKindOfFood() == Subject.KindOfFood.RARE){
+        if (kindOfFood.getKindOfFood() == Subject.KindOfFood.RARE) {
             if (isCold) {
                 time = rareColdStakeTimes[currentStakeSizeIndex];
             } else {
                 time = rareStakeTimes[currentStakeSizeIndex];
             }
-        }  else {
+        } else if (kindOfFood.getKindOfFood() == Subject.KindOfFood.MEDIUM){
             if (isCold) {
                 time = mediumColdStakeTimes[currentStakeSizeIndex];
             } else {
                 time = mediumStakeTimes[currentStakeSizeIndex];
+            }
+        }  else {
+            if (isCold) {
+                time = weldonColdStakeTimes[currentStakeSizeIndex];
+            } else {
+                time = weldonStakeTimes[currentStakeSizeIndex];
             }
         }
         return time;
