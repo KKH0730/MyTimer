@@ -685,10 +685,10 @@ public class MainActivity extends AppCompatActivity {
             alertDialog = showAlertDialog(layoutTwoButtonDialogBinding.getRoot());
 
             layoutTwoButtonDialogBinding.tvNegative.setText(getString(R.string.cancel));
-            layoutTwoButtonDialogBinding.tvPositive.setText(getString(R.string.start));
 
             if (binding.tvStart.getText().equals(getString(R.string.start))) {
                 layoutTwoButtonDialogBinding.tvTitle.setText(getString(R.string.timer_start_title));
+                layoutTwoButtonDialogBinding.tvPositive.setText(getString(R.string.start));
                 if (subject.getName().equals(Subject.EGG.getName())) {
                     layoutTwoButtonDialogBinding.tvContent.setText(getString(R.string.egg_timer_start_content));
                 } else if (subject.getName().equals(Subject.STAKE.getName())) {
@@ -706,6 +706,7 @@ public class MainActivity extends AppCompatActivity {
                 viewModel.pauseTimer();
 
                 layoutTwoButtonDialogBinding.tvTitle.setText(getString(R.string.timer_cancel_title));
+                layoutTwoButtonDialogBinding.tvPositive.setText(getString(R.string.continue1));
                 layoutTwoButtonDialogBinding.tvContent.setText(getString(R.string.timer_cancel_content));
                 layoutTwoButtonDialogBinding.tvNegative.setOnClickListener(v -> {
                     initializeTimer();
