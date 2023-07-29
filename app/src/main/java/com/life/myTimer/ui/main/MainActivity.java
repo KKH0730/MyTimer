@@ -35,18 +35,15 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.LinearSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SnapHelper;
-import androidx.work.Data;
-import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkManager;
-import androidx.work.WorkRequest;
 
 import com.life.myTimer.App;
 import com.life.myTimer.AppStateDetectListener;
 import com.life.myTimer.R;
+import com.life.myTimer.TimerService;
 import com.life.myTimer.databinding.ActivityMainBinding;
 import com.life.myTimer.databinding.LayoutOneButtonDialogBinding;
 import com.life.myTimer.databinding.LayoutTwoButtonDialogBinding;
-import com.life.myTimer.ui.TimerWorkManager;
 import com.life.myTimer.ui.main.adapter.FoodSizeAdapter;
 import com.life.myTimer.ui.main.adapter.KindOfFoodAdapter;
 import com.life.myTimer.ui.main.model.KindOfFood;
@@ -79,6 +76,8 @@ public class MainActivity extends AppCompatActivity {
         binding.setViewModel(viewModel);
 
         startObserve();
+
+        serviceIntent = new Intent(MainActivity.this, TimerService.class);
         setAppStateListener();
         setBottomSheetHeight();
         setFoodSizeRecyclerView();
@@ -221,17 +220,14 @@ public class MainActivity extends AppCompatActivity {
             });
         });
     }
-
+    Intent serviceIntent;
     private void setAppStateListener() {
         App.getInstance().setAppStateDetectListener(new AppStateDetectListener() {
             @Override
             public void onForegroundDetected() {
                 blockTimer = true;
-                WorkManager.getInstance(MainActivity.this).cancelAllWork();
-                NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-                if (notificationManager != null) {
-                    notificationManager.cancel(Constants.NOTICIATION_ID);
-                }
+                serviceIntent.setAction("stop");
+                stopService(serviceIntent);
             }
 
             @Override
@@ -243,15 +239,11 @@ public class MainActivity extends AppCompatActivity {
                     if (viewModel.getSelectedSubject().getName().equals(Subject.STAKE.getName())) {
                         flipTime = viewModel.getStakeFlipTime();
                     }
-                    Data inputData = new Data.Builder()
-                            .putInt("time", viewModel.getTime())
-                            .putInt("flipTime", flipTime)
-                            .build();
-                    WorkRequest timerWorkRequest = new OneTimeWorkRequest.Builder(TimerWorkManager.class)
-                            .setInputData(inputData)
-                            .build();
-                    WorkManager workManager = WorkManager.getInstance(MainActivity.this);
-                    workManager.enqueue(timerWorkRequest);
+
+                    serviceIntent.putExtra("time", viewModel.getTime());
+                    serviceIntent.putExtra("flipTime", flipTime);
+                    serviceIntent.setAction("start");
+                    startForegroundService(serviceIntent);
                 }
             }
         });

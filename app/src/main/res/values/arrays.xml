@@ -74,7 +74,7 @@
     <integer-array name="mediumStakeTime">
         <item>210</item>
         <item>360</item>
-        <item>450</item>
+        <item>570</item>
         <item>720</item>
     </integer-array>
 

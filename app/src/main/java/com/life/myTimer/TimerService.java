@@ -1,53 +1,63 @@
-package com.life.myTimer.ui;
+package com.life.myTimer;
 
 import android.annotation.SuppressLint;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.media.RingtoneManager;
+import android.os.IBinder;
 import android.util.Log;
 
-import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
-import androidx.work.Data;
-import androidx.work.Worker;
-import androidx.work.WorkerParameters;
 
-import com.life.myTimer.AppStartReceiver;
-import com.life.myTimer.R;
 import com.life.myTimer.ui.main.MainActivity;
 import com.life.myTimer.utils.Constants;
 
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class TimerWorkManager extends Worker {
-    private Context context;
-    public TimerWorkManager(@NonNull Context context, @NonNull WorkerParameters workerParams) {
-        super(context, workerParams);
-        this.context = context;
+public class TimerService extends Service {
+
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+
+        Log.e("kkhdev"," onCreate");
     }
 
-    @SuppressLint("RestrictedApi")
-    @NonNull
     @Override
-    public Result doWork() {
-        Data inputData = getInputData();
-        int time = inputData.getInt("time", -1);
-        int flipTime = inputData.getInt("flipTime", - 1);
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        Log.e("kkhdev"," onStartCommand");
+        if (intent.getAction().equals("start")) {
+            doWork(intent);
+        } else if (intent.getAction().equals("stop")) {
+            stopForeground(true);
+            stopSelf();
+        }
+        return START_NOT_STICKY;
+    }
+
+    public void doWork(Intent intent) {
+        Log.e("kkhdev"," dowork");
+        int time = intent.getIntExtra("time", -1);
+        int flipTime = intent.getIntExtra("flipTime", - 1);
         if (time != -1) {
+            Log.e("kkhdev","time : " + time);
             createNotificationBuilder(time, flipTime);
         }
-        return new Result.Success();
     }
 
+
     @Override
-    public void onStopped() {
+    public void onDestroy() {
         stopTimer();
-        super.onStopped();
+        super.onDestroy();
     }
 
     public void stopTimer() {
@@ -61,7 +71,7 @@ public class TimerWorkManager extends Worker {
 
     @SuppressLint("NotificationTrampoline")
     private void createNotificationBuilder(int time, int flipTime) {
-        NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
         final int[] timerTime = {time};
         int minute = time / 60;
@@ -71,13 +81,13 @@ public class TimerWorkManager extends Worker {
         if (notificationManager != null) {
             notificationManager.createNotificationChannel(createNotificationChannel());
 
-            Intent intent = new Intent(context, AppStartReceiver.class);
-            PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_IMMUTABLE);
+            Intent intent = new Intent(this, AppStartReceiver.class);
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_IMMUTABLE);
 
-            builder = new NotificationCompat.Builder(context, CHANNEL_ID)
+            builder = new NotificationCompat.Builder(this, CHANNEL_ID)
                     .setSmallIcon(R.mipmap.ic_launcher_round)
-                    .setColor(ContextCompat.getColor(context, R.color.color_ED8282))
-                    .setContentTitle(context.getString(R.string.app_name))
+                    .setColor(ContextCompat.getColor(this, R.color.color_ED8282))
+                    .setContentTitle(this.getString(R.string.app_name))
                     .setContentText(String.format("%02d : %02d", minute, second))
                     .setAutoCancel(true)
                     .setSilent(true)
@@ -87,7 +97,8 @@ public class TimerWorkManager extends Worker {
 
             builder.setContentText(String.format("%02d : %02d", minute, second));
 
-            notificationManager.notify(Constants.NOTICIATION_ID, builder.build());
+            startForeground(Constants.NOTICIATION_ID, builder.build());
+//            notificationManager.notify(Constants.NOTICIATION_ID, builder.build());
 
             notiTimer.cancel();
             notiTimer = new Timer();
@@ -99,6 +110,8 @@ public class TimerWorkManager extends Worker {
                         notiTimer.cancel();
                         return;
                     }
+
+//                    Log.e("kkhdev","time : " + String.format("%02d : %02d", timerTime[0] / 60, timerTime[0] % 60));
                     if (timerTime[0] == 0) {
                         builder.setContentText(String.format("%02d : %02d", 0, 0));
                         try {
@@ -109,6 +122,7 @@ public class TimerWorkManager extends Worker {
 
                         this.cancel();
                         notiTimer.cancel();
+                        notiTimer.purge();
                         return;
                     } else {
                         timerTime[0] -= 1;
@@ -126,7 +140,8 @@ public class TimerWorkManager extends Worker {
                         int updatedSecond = timerTime[0] % 60;
                         builder.setContentText(String.format("%02d : %02d", updatedMinute, updatedSecond));
                     }
-                    notificationManager.notify(Constants.NOTICIATION_ID, builder.build());
+//                    notificationManager.notify(Constants.NOTICIATION_ID, builder.build());
+                    startForeground(Constants.NOTICIATION_ID, builder.build());
                 }
             };
             notiTimer.schedule(notiTimerTask, 0, 1000);
@@ -140,6 +155,13 @@ public class TimerWorkManager extends Worker {
     }
 
     private NotificationChannel createNotificationChannel() {
-        return new NotificationChannel(CHANNEL_ID, context.getString(R.string.app_name), NotificationManager.IMPORTANCE_HIGH);
+        return new NotificationChannel(CHANNEL_ID, this.getString(R.string.app_name), NotificationManager.IMPORTANCE_HIGH);
+    }
+
+
+    @Nullable
+    @Override
+    public IBinder onBind(Intent intent) {
+        return null;
     }
 }

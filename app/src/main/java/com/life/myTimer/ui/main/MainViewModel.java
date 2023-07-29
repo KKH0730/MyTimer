@@ -307,7 +307,7 @@ public class MainViewModel extends ViewModel {
                 }
             };
 
-            timer.schedule(timerTask, 1000, 1000);
+            timer.schedule(timerTask, 0, 1000);
         }
     }
 
